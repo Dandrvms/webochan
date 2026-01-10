@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+body {
+  background: #0b0812;
+  color: #ffffff;
+}
+
+
+textarea{
+  scrollbar-width: thin;
+  scroll-behavior: auto;
+}

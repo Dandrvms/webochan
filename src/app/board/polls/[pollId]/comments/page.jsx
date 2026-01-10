@@ -1,0 +1,142 @@
+import { cookies } from "next/headers"
+import PollCommentsList from "@/app/components/PollCommentsList"
+import { prisma } from "@/libs/prisma"
+
+async function getCommentsByPollId({ id }) {
+
+    const comments = await prisma.comment.findMany({
+        where: {
+            pollId: Number(id)
+        },
+        orderBy: {
+            date: 'asc'
+        },
+        include: {
+            _count: { select: { replies: true } }
+        }
+    })
+    return comments
+}
+
+async function getPollById({ id }) {
+    const poll = await prisma.poll.findUnique({
+        where: {
+            id: Number(id)
+        },
+        include: {
+            options: {
+                include: {
+                    votes: true
+                }
+            },
+        //     _count: { select: { comments: true } }
+        //     , comments: {
+        //         take: 3,
+        //         orderBy: { date: 'desc' },
+        //         include: { userId: false, secretKey: false }
+        //     },
+        //     userId: false,
+        }
+    })
+
+
+
+
+    return poll
+}
+
+
+export const dynamic = 'force-dynamic'
+
+export default async function PollsComments({ params, searchParams }) {
+
+
+    const { pollId } = await params
+    const id = pollId
+    const poll = await getPollById({ id })
+    const comments = await getCommentsByPollId({ id })
+
+
+    const cookieStore = await cookies()
+    const userSecret = cookieStore.get('secretKey')?.value
+
+    const commentsWithFlags = comments
+        .map(({ secretKey, _count, ...cmt }) => ({
+            ...cmt,
+            canEdit: secretKey === userSecret,
+            isComment: true,
+            replies: _count.replies
+        }))
+
+
+    const totalVotes = poll.options.reduce((sum, option) => sum + option.votes.length, 0)
+
+    return (
+        <section>
+            <div className=" flex flex-col items-center w-full h-full pb-20">
+
+                <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-gray-700 mt-20 pb-10 ">
+
+                    <div className="flex flex-col w-full max-w-3xl border border-gray-800 rounded-lg p-5 space-y-2">
+                        <span className="text-xs font-bold text-gray-500 leading-none px-2">wbn</span>
+                        <span className="text-xs font-bold text-pink-400 leading-none px-2">{`P. ${poll.id}`}</span>
+                        <div className=" text-gray-300 p-3 rounded-l-lg rounded-lg ">
+                            <p className="text-sm font-bold">{poll.question}</p>
+                            <div className="p-2 mt-5 w-full max-w-3xl">
+                                <ul className="list-none px-4">
+                                    {poll.options.map(option => {
+                                        const voteCount = option.votes.length;
+                                        // Calcula el porcentaje de votos para esta opción
+                                        const percent = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
+                                        return (
+                                            <li key={option.id} className="cursor-pointer text-gray-300 mb-4 active:bg-gray-700 hover:bg-gray-700 rounded-lg px-3"
+                                            >
+                                                {option.option} <span className="text-xs text-gray-500">({voteCount} votos)</span>
+                                                {/* Barra de progreso */}
+
+                                                <div className=" w-full h-2 mt-1">
+
+                                                    <div
+                                                        className=" h-2 rounded bg-fuchsia-400 transition-all duration-300"
+                                                        style={{ width: `${voteCount == 0 && totalVotes == 0 ? 5 : Math.max(percent, 5)}%` }}
+
+                                                    ></div>
+                                                </div>
+                                                <span className="text-xs text-green-500">{percent.toFixed(1)}%</span>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        </div>
+                        <span className="text-xs text-gray-500 leading-none px-2">{new Date(poll.createdAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-xs text-gray-500 leading-none px-2">{new Date(poll.createdAt).toLocaleDateString('es-ES', { weekday: 'short' })}</span>
+                        <span className="text-xs text-gray-500 leading-none px-2">{new Date(poll.createdAt).toLocaleDateString('es-ES', { month: '2-digit', day: '2-digit', year: 'numeric' })}</span>
+
+                    </div>
+
+                    {
+                        comments.length === 0 ? (
+                            <div className="mt-20 flex flex-col items-center justify-center w-full h-full">
+                                <h1 className="text-2xl font-bold">No hay comentarios aún</h1>
+                            </div>
+                        ) : null}
+
+                    <PollCommentsList initialComments={commentsWithFlags} replyTo={(await searchParams)?.replyTo} pollId={id} boardId={"polls"} />
+
+
+
+                </div>
+
+
+            </div>
+
+
+
+        </section>
+    );
+
+
+
+}
+

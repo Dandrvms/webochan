@@ -1,0 +1,103 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Message{
+  id Int @id @default(autoincrement())
+  content String
+  date DateTime @default(now())
+  edited DateTime @default(now())
+  isEdited Boolean @default(false)
+  versions Versions[] 
+  comments Comment[]
+  userId String @default("")
+  secretKey String @default("")
+  expiresAt DateTime @default(now())
+  lastReply DateTime? 
+  boardId String @default("")
+ 
+}
+
+model Versions{
+  id Int @id @default(autoincrement())
+  content String
+  date DateTime @default(now())
+  messageId Int
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+
+model Comment{
+  id Int @id @default(autoincrement())
+  userId String @default("")
+  secretKey String @default("")
+  content String
+  date DateTime @default(now())
+  edited DateTime @default(now())
+  isEdited Boolean @default(false)
+  versions Comment_Versions[]
+  messageId Int?
+  message Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  isOP Boolean @default(false)
+
+
+  poll Poll? @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  pollId Int?
+  
+  
+  
+  parentId Int?
+  parent Comment? @relation("Replies", fields: [parentId], references: [id])
+  replies Comment[] @relation("Replies")
+}
+
+model Comment_Versions{
+  id Int @id @default(autoincrement())
+  content String
+  date DateTime @default(now())
+  commentId Int
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+}
+
+model Poll {
+  id Int @id @default(autoincrement())
+  question String
+  options Poll_Options[]
+  votes Poll_Votes[]
+  closed Boolean @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime?
+  userId String @default("")
+  secretKey String @default("")
+  boardId String @default("")
+  comments Comment[]
+  lastReply DateTime?
+}
+
+model Poll_Options {
+  id Int @id @default(autoincrement())
+  option String
+  pollId Int
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes Poll_Votes[]
+}
+
+model Poll_Votes {
+  id Int @id @default(autoincrement())
+  userId String @default("")
+  pollId Int
+  optionId Int
+  option Poll_Options @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  @@unique([pollId, userId], name: "unique_poll_vote")
+}
