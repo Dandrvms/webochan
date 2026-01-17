@@ -1,116 +1,136 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/libs/prisma";
-import { cookies } from "next/headers";
 import crypto from "crypto";
+
 export async function POST(request) {
 
-    const cookieStore = await cookies()
-    const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
+    try {
+        const csrfCookie = request.cookies.get('csrfToken')?.value
+        const csrfHeader = request.headers.get('x-csrf-token')
 
-    if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
-        return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
-    }
-
-    const userSecret = cookieStore.get('secretKey');
-
-    if (!userSecret) {
-        const session = generateSession()
-        cookieStore.set({
-            name: 'user',
-            value: session.publicId,
-            expires: session.expires,
-
-        })
-        cookieStore.set({
-            name: 'secretKey',
-            value: session.secretKey,
-            expires: session.expires,
-            httpOnly: true,
-        })
-
-    }
-
-    const { pollId, optionId } = await request.json();
-
-    // Check if the vote already exists
-    const existingVote = await prisma.poll_Votes.findFirst({
-        where: {
-            pollId: Number(pollId),
-            userId: cookieStore.get('secretKey')?.value,
-        },
-    });
-
-    if (existingVote) {
-        return NextResponse.json({ error: 'Ya has votado en esta encuesta' }, { status: 400 });
-    }
-
-    // Check if the poll is closed
-    const pollClosed = await prisma.poll.findFirst({
-        where: {
-            id: Number(pollId),
+        if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
+            return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
         }
-    })
 
-    if (new Date(pollClosed.expiresAt) < new Date()) {
-        return NextResponse.json({ error: 'La encuesta está cerrada' }, { status: 400 });
+        const cookieHeader = request.headers.get('cookie') || ''
+        let user = cookieHeader.match(/(?:^|;\s*)user=([^;]*)/)?.[1]
+        let secretKey = cookieHeader.match(/(?:^|;\s*)secretKey=([^;]*)/)?.[1]
+
+        let newCookies = []
+
+
+        if (!user || !secretKey) {
+            const session = generateSession()
+            secretKey = session.secretKey
+            user = session.publicId
+        }
+
+        const { pollId, optionId } = await request.json();
+
+        // Check if the vote already exists
+        const existingVote = await prisma.poll_Votes.findFirst({
+            where: {
+                pollId: Number(pollId),
+                userId: user,
+            },
+        });
+
+        if (existingVote) {
+            return NextResponse.json({ error: 'Ya has votado en esta encuesta' }, { status: 400 });
+        }
+
+        // Check if the poll is closed
+        const pollClosed = await prisma.poll.findFirst({
+            where: {
+                id: Number(pollId),
+            }
+        })
+
+        if (new Date(pollClosed.expiresAt) < new Date()) {
+            return NextResponse.json({ error: 'La encuesta está cerrada' }, { status: 400 });
+        }
+
+
+        // Create a new vote
+        await prisma.poll_Votes.create({
+            data: {
+                pollId: Number(pollId),
+                optionId: Number(optionId),
+                userId: user // Use the secret key as userId
+            },
+        });
+
+        const updatedPoll = await prisma.poll.findUnique({
+            where: { id: pollId },
+            include: {
+                options: { include: { votes: true } },
+                _count: { select: { comments: true } }
+            }
+        })
+
+        const response = NextResponse.json({
+            ...updatedPoll,
+            totalVotes: updatedPoll.options.reduce((sum, opt) => sum + opt.votes.length, 0),
+            options: updatedPoll.options.map(opt => ({
+                ...opt,
+                voteCount: opt.votes.length,
+                votes: []
+            })),
+            comments: updatedPoll._count.comments
+        })
+
+        if (newCookies.length > 0){
+            newCookies.forEach(cookie => response.headers.append('Set-Cookie', cookie))
+        }
+        return response;
+    } catch (error) {
+        console.error("Error voting:", error)
+        return NextResponse.json({ error: "Error al registrar voto" }, { status: 500 })
     }
-
-
-    // Create a new vote
-    const newVote = await prisma.poll_Votes.create({
-        data: {
-            pollId: Number(pollId),
-            optionId: Number(optionId),
-            userId: cookieStore.get('secretKey')?.value, // Use the secret key as userId
-        },
-    });
-
-    return NextResponse.json(newVote);
 }
 
 
-export async function DELETE(request) {
+// export async function DELETE(request) {
 
 
-    const cookieStore = await cookies()
-    const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
+//     const cookieStore = await cookies()
+//     const csrfCookie = cookieStore.get('csrfToken')?.value
+//     const csrfHeader = request.headers.get('x-csrf-token')
 
-    if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
-        return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
-    }
-    
-    const userSecret = cookieStore.get('secretKey');
+//     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
+//         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
+//     }
 
-    if (!userSecret) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+//     const userSecret = cookieStore.get('secretKey');
 
-    const { pollId, optionId } = await request.json();
+//     if (!userSecret) {
+//         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+//     }
 
-    // Check if the vote exists
-    const existingVote = await prisma.poll_Votes.findFirst({
-        where: {
-            pollId: Number(pollId),
-            optionId: Number(optionId),
-            userId: cookieStore.get('secretKey')?.value,
-        },
-    });
+//     const { pollId, optionId } = await request.json();
 
-    if (!existingVote) {
-        return NextResponse.json({ error: 'Voto no encontrado' }, { status: 404 });
-    }
+//     // Check if the vote exists
+//     const existingVote = await prisma.poll_Votes.findFirst({
+//         where: {
+//             pollId: Number(pollId),
+//             optionId: Number(optionId),
+//             userId: cookieStore.get('secretKey')?.value,
+//         },
+//     });
 
-    // Delete the vote
-    await prisma.poll_Votes.delete({
-        where: {
-            id: existingVote.id,
-        },
-    });
+//     if (!existingVote) {
+//         return NextResponse.json({ error: 'Voto no encontrado' }, { status: 404 });
+//     }
 
-    return NextResponse.json({ message: 'Voto eliminado correctamente' });
-}
+//     // Delete the vote
+//     await prisma.poll_Votes.delete({
+//         where: {
+//             id: existingVote.id,
+//         },
+//     });
+
+//     return NextResponse.json({ message: 'Voto eliminado correctamente' });
+// }
 
 
 function generateSession() {

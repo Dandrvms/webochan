@@ -23,7 +23,7 @@ export async function GET(request, { params }) {
    
     const { id } = await params;
 
-    // Fetch the post data from your database or API
+    
     const post = await fetchPostById(id);
 
     if (!post) {

@@ -19,9 +19,9 @@ export default async function Board({ params }) {
 
     const messages = await prisma.message.findMany({
         where: {
-            expiresAt: {
-                gt: new Date()
-            },
+            // expiresAt: {
+            //     gt: new Date()
+            // },
             boardId: boardId,
         },
         include: {

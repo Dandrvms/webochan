@@ -1,40 +1,55 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers"
 import { prisma } from '@/libs/prisma'
 import crypto from 'crypto'
 
 export async function GET(request) {
+    try {
+        const csrfCookie = request.cookies.get('csrfToken')?.value
+        const csrfHeader = request.headers.get('x-csrf-token')
 
-    const cookieStore = await cookies()
-    const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
-
-    if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
-        return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
-    }
-
-    const cookie = request.headers.get('cookie') || ''
-    const match = cookie.match(/(?:^|;\s*) secretKey=([^;]*)/)
-
-    const id = request.headers.get('pollId')
-
-    const comments = await prisma.comment.findMany({
-        where: {
-            pollId: Number(id)
-        },
-        orderBy: {
-            date: 'asc'
+        if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
+            return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
         }
-    })
 
+        const cookieHeader = request.headers.get('cookie') || ''
+        const secretKeyMatch = cookieHeader.match(/(?:^|;\s*)secretKey=([^;]*)/)
+        const userSecret = secretKeyMatch ? secretKeyMatch[1] : null
 
-    const safeComments = comments.map(({ secretKey, _count, ...cmt }) => ({
-        ...cmt,
-        canEdit: secretKey === (match ? match[1] : null),
-        isComment: true
-    }))
+        const pollId = request.headers.get('pollId')
 
-    return NextResponse.json(safeComments)
+        if (!pollId) {
+            return NextResponse.json({ error: 'pollId is required' }, { status: 400 })
+        }
+
+        const comments = await prisma.comment.findMany({
+            where: {
+                pollId: Number(pollId)
+            },
+            orderBy: {
+                date: 'asc'
+            }
+        })
+
+        const poll = await prisma.poll.findUnique({
+            where: { id: Number(pollId) },
+            select: { secretKey: true }
+        })
+
+        const opSecretKey = poll?.secretKey
+
+        const safeComments = comments.map(({ secretKey, _count, ...cmt }) => ({
+            ...cmt,
+            canEdit: secretKey === userSecret,
+            isComment: true,
+            isOP: secretKey === opSecretKey,
+            isEdited: false
+        }))
+
+        return NextResponse.json(safeComments)
+    } catch (error) {
+        console.error("Error en GET /api/poll_comments:", error)
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    }
 }
 
 
@@ -52,102 +67,74 @@ function generateSession() {
 
 export async function POST(request) {
 
-    const cookieStore = await cookies()
-    const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
-
-    if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
-        return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
-    }
-
-    const sage = request.headers.get('sage') === 'true'
-
-
-    const user = cookieStore.get('user')
-    if (!user) {
-        const session = generateSession()
-        cookieStore.set({
-            name: 'user',
-            value: session.publicId,
-            expires: session.expires,
-
-        })
-        cookieStore.set({
-            name: 'secretKey',
-            value: session.secretKey,
-            expires: session.expires,
-            httpOnly: true,
-        })
-
-    }
-
-    const { content, pollId, parentId } = await request.json()
-
-
-    if (!sage) {
-        await prisma.poll.update({
-            where: {
-                id: Number(pollId)
-            },
-            data: {
-                lastReply: new Date()
-            }
-        })
-    }
-
-
-    const newComment = await prisma.comment.create({
-        data: {
-            content,
-            pollId,
-            userId: cookieStore.get('user')?.value,
-            secretKey: cookieStore.get('secretKey')?.value,
-            parentId
-        }
-    });
-
-
-    // response = await fetch("/api/bot/notify/comments", {
-    //     method: "POST",
-    //     headers: { "Content-Type": "application/json", "x-csrf-token": csrfHeader },
-    //     body: JSON.stringify({
-    //         id: newComment.id,
-    //         content: newComment.content,
-    //         postId: Number(messageId),
-    //         boardId: newComment.boardId,
-
-    //     })
-    // })
-
-    return NextResponse.json(newComment);
-}
-
-export async function DELETE(request, { params }) {
-    const cookieStore = await cookies()
-    const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
-    
-    if(!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader){
-        return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
-    }
-
-    const { pollId } = await request.json();
-
-    const userSecret = cookieStore.get('secretKey')
-
-    const poll = await prisma.poll.findUnique({ where: { id: Number(pollId) } })
-    if (!poll || poll.secretKey !== userSecret) {
-        return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-    }
-
     try {
-        const deletedComment = await prisma.comment.deleteMany({
-            where: {
-                pollId: Number(pollId)
+        const csrfCookie = request.cookies.get('csrfToken')?.value
+        const csrfHeader = request.headers.get('x-csrf-token')
+
+        if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
+            return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
+        }
+
+        const sage = request.headers.get('sage') === 'true'
+
+
+        const cookieHeader = request.headers.get('cookie') || ''
+        let user = cookieHeader.match(/(?:^|;\s*)user=([^;]*)/)?.[1]
+        let secretKey = cookieHeader.match(/(?:^|;\s*)secretKey=([^;]*)/)?.[1]
+
+        let newCookies = []
+
+        if (!user || !secretKey){
+            const session = generateSession()
+            secretKey = session.secretKey
+            user = session.publicId
+        }
+        
+        const { content, pollId, parentId } = await request.json()
+
+        if (!sage) {
+            await prisma.poll.update({
+                where: {
+                    id: Number(pollId)
+                },
+                data: {
+                    lastReply: new Date()
+                }
+            })
+        }
+
+        const poll = await prisma.poll.findUnique({
+            where: { id: Number(pollId) },
+            select: { secretKey: true }
+        })
+
+        const isOP = poll?.secretKey === secretKey
+
+        const newComment = await prisma.comment.create({
+            data: {
+                content,
+                pollId: Number(pollId),
+                userId: user,
+                secretKey: secretKey,
+                parentId: parentId ? Number(parentId) : null,
+                isOP: isOP
             }
         });
-        return NextResponse.json(deletedComment);
+
+        const response = NextResponse.json({
+            ...newComment,
+            canEdit: true,
+            isOP: false,
+            replies: 0,
+            isEdited: false
+        })
+
+        if (newCookies.length > 0){
+            newCookies.forEach(cookie => response.headers.append('Set-Cookie', cookie))
+        }
+        return response
     } catch (error) {
-        return NextResponse.json(error);
+        console.error("Error en POST /api/poll_comments:", error)
+        return NextResponse.json({ error: "Internal server error" }, { status: 500 })
     }
 }
