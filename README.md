@@ -3,7 +3,7 @@
 ![webochan-ascii](https://github.com/user-attachments/assets/46a8eb8f-08cc-4979-aa0c-4a595cbc622e)
 
 
-Bienvenido a **Webochan**, el tablón de mensajes anónimos y encuestas para la comunidad Webo.
+Bienvenido a [Webochan](https://webochan.vercel.app), el tablón de mensajes anónimos y encuestas para la comunidad Webo.
 
 ## Características
 
