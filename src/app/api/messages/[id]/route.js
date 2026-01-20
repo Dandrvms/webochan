@@ -8,9 +8,9 @@ export async function GET(request, { params }) {
 
     const cookieStore = await cookies()
     const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
-    
-    if(!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader){
+    const csrfHeader = request.headers.get('X-CSRF-Token')
+
+    if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
     }
 
@@ -35,7 +35,7 @@ export async function PUT(request, { params }) {
 
     const cookieStore = await cookies()
     const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
+    const csrfHeader = request.headers.get('X-CSRF-Token')
 
     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
@@ -57,12 +57,45 @@ export async function PUT(request, { params }) {
         data: {
             content: data.content,
             edited: data.edited,
-            isEdited: data.isEdited,
-            date: data.date,
+            isEdited: true,
+            date: new Date().toISOString(),
+        },
+        include: {
+            _count: { select: { comments: true } },
+            comments: {
+                take: 3,
+                orderBy: { date: 'desc' },
+                select: {
+                    id: true,
+                    content: true,
+                    date: true,
+                }
+            },
         }
-
     })
-    return NextResponse.json(messageEdited)
+
+    await prisma.versions.create({
+        data: {
+            content: messageEdited.content,
+            messageId: messageEdited.id
+        }
+    });
+
+
+     const responseMessage = {
+        ...messageEdited,
+        canEdit: true, 
+        comments: messageEdited._count.comments,
+        commentsContent: messageEdited.comments.slice().reverse(),
+        isComment: false,
+        isPinned: messageEdited.id === 72,
+        isEdited: true,
+        _count: undefined,
+        secretKey: undefined,
+        userId: undefined,
+    }
+
+    return NextResponse.json(responseMessage)
 }
 
 
@@ -71,7 +104,7 @@ export async function DELETE(request, { params }) {
 
     const cookieStore = await cookies()
     const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
+    const csrfHeader = request.headers.get('X-CSRF-Token')
 
     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })

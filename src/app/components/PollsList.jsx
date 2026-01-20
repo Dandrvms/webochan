@@ -30,9 +30,9 @@ export default function PollsList({ initialPolls }) {
                 behavior: 'smooth',
                 block: 'center'
             })
-            targetElement.classList.add('bg-blue-950')
+            targetElement.classList.add('bg-gray-950')
             setTimeout(() => {
-                targetElement.classList.remove('bg-blue-950')
+                targetElement.classList.remove('bg-gray-950')
             }, 1000)
         }
     }, [])
@@ -52,7 +52,11 @@ export default function PollsList({ initialPolls }) {
             }
         })
 
-        if (!res.ok) throw new Error('Error al crear encuesta')
+        if (!res.ok) {
+            setToast('Error al crear encuesta')
+            setTimeout(() => setToast(null), 2500)
+        }
+
         return await res.json()
     }, [])
 
@@ -108,10 +112,10 @@ export default function PollsList({ initialPolls }) {
         if (isVoting) return
 
         setIsVoting(true)
-        
+
         const previousPolls = [...polls];
 
-        // 2. Actualización Optimista: Sumar el voto localmente de inmediato
+
         updateOptimistic(pollId, (oldPoll) => ({
             ...oldPoll,
             totalVotes: (oldPoll.totalVotes || 0) + 1,
@@ -123,7 +127,6 @@ export default function PollsList({ initialPolls }) {
         }));
 
         try {
-            // 3. Obtener el token CSRF (puedes usar una utilidad o el helper del hook si lo exportas)
             const csrfToken = document.cookie
                 .split('; ')
                 .find(row => row.startsWith('csrfToken='))
@@ -134,7 +137,7 @@ export default function PollsList({ initialPolls }) {
                 body: JSON.stringify({ pollId, optionId }),
                 headers: {
                     'Content-Type': 'application/json',
-                    "x-csrf-token": csrfToken
+                    "X-CSRF-Token": csrfToken
                 }
             });
 
@@ -144,15 +147,13 @@ export default function PollsList({ initialPolls }) {
                 throw new Error(r.error);
             }
 
-            // Opcional: Si la API devuelve la encuesta real actualizada, 
-            // la sincronizamos para corregir posibles discrepancias.
+
             if (r.poll) {
                 replaceTemp(pollId, r.poll);
             }
 
         } catch (error) {
-            // 4. ROLLBACK: Si la API falla, restauramos el estado anterior
-            // y mostramos el error al usuario.
+
             setData(previousPolls);
             setToast(error.message || "Error al registrar el voto");
             setTimeout(() => setToast(null), 2500);
@@ -175,10 +176,12 @@ export default function PollsList({ initialPolls }) {
             const el = document.getElementById(id)
             if (el) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-                el.classList.add('bg-fuchsia-900')
+                el.classList.add('bg-gray-800')
                 setTimeout(() => {
-                    el.classList.remove('bg-fuchsia-900')
+                    el.classList.remove('bg-gray-800')
                 }, 1000)
+
+                history.replaceState(null, '', ' ')
             }
         }
     }, [loading, polls])
@@ -203,7 +206,7 @@ export default function PollsList({ initialPolls }) {
             <div className="flex-col flex items-center w-full h-full">
                 <div className="flex flex-col flex-grow w-full max-w-xl pt-10 items-center">
                     {polls && polls.map((poll) => (
-                        <div id={poll.id} key={poll.id} className="md:w-10/8 w-screen border border-fuchsia-800 pb-4">
+                        <div id={poll.id} key={poll.id} className="md:w-10/8 w-screen border border-b-0 border-dotted border-4  border-pink-600 pb-4">
                             <div className="flex w-full">
                                 <div className="w-full mt-2">
                                     <div>
@@ -229,7 +232,7 @@ export default function PollsList({ initialPolls }) {
                                                                 {/* Barra de progreso */}
                                                                 <div className="w-full h-2 mt-1">
                                                                     <div
-                                                                        className="h-2 rounded bg-fuchsia-400 transition-all duration-300"
+                                                                        className="h-2 bg-pink-400 transition-all duration-300"
                                                                         style={{ width: `${option.voteCount == 0 && poll.totalVotes == 0 ? 5 : Math.max(percent, 5)}%` }}
                                                                     ></div>
                                                                 </div>
@@ -286,7 +289,7 @@ export default function PollsList({ initialPolls }) {
                             </div>
                             {poll.comments > 0 && (
                                 Array.isArray(poll.commentsContent) && poll.commentsContent.map((c) => (
-                                    <div key={c["id"]} className="h-full break-word wrap-normal mx-10 h-10 border border-pink-300 mt-1 rounded-b-xl text-xs p-3 hover:bg-gray-900">
+                                    <div key={c["id"]} className="h-full break-word wrap-normal mx-10 h-10 border border-dashed border-2 border-pink-800 mt-1  text-xs p-3 hover:bg-gray-900">
                                         <span className='font-bold text-gray-600 leading-none'>wbn</span>
                                         <span className='text-xs font-bold text-pink-300 leading-none px-2'>{`N. ${c["id"]}`}</span>
                                         <p className='mb-2 text-gray-400'><MarkdownRenderer text={c["content"]} boardId={poll.boardId} /></p>
@@ -307,14 +310,14 @@ export default function PollsList({ initialPolls }) {
                 </div>
             </div>
 
-            <div className="max-w-3xl mx-auto border-t border-pink-300 my-5">
+            {/* <div className="max-w-3xl mx-auto border-t border-pink-300 my-5">
                 <div className="flex justify-center items-center">
                     <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/">home</a>
                     <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/webo">webo</a>
                     <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/meta">meta</a>
                     <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/polls">polls</a>
                 </div>
-            </div>
+            </div> */}
         </>
     )
 }

@@ -2,7 +2,7 @@ export async function GET(request, { params }) {
 
     const cookieStore = await cookies()
     const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
+    const csrfHeader = request.headers.get('X-CSRF-Token')
 
     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })

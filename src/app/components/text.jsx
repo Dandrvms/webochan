@@ -1,13 +1,13 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react"
 export default function Text({
-  reply, 
-  onClearReply, 
-  onCommentSent, 
-  onMessageSent, 
-  onHandleSent, 
+  reply,
+  onClearReply,
+  onCommentSent,
+  onMessageSent,
+  onHandleSent,
   color,
-  isSubmitting = false 
+  isSubmitting = false
 }) {
   const textareaRef = useRef(null)
   const [isSage, setIsSage] = useState(false)
@@ -31,7 +31,7 @@ export default function Text({
     : []
   const isCommentsPage = pathSegments[4] === "comments"
   const isPollComments = pathSegments[2] === "polls" && isCommentsPage
-  
+
   const onSageChange = (e) => {
     setIsSage(e.target.checked)
   }
@@ -54,7 +54,7 @@ export default function Text({
   const onSub = async (e) => {
     e.preventDefault()
     const txt = e.target.chat.value.trim()
-    
+
     if (txt.length === 0) return
 
     setLocalIsSubmitting(true)
@@ -73,7 +73,7 @@ export default function Text({
         }
         if (onClearReply) onClearReply()
       } else {
-        
+
         if (onMessageSent && typeof onMessageSent === 'function') {
           const path = window.location.pathname.split("/");
           const boardId = path[2]
@@ -98,179 +98,55 @@ export default function Text({
 
   const isLoading = isSubmitting || localIsSubmitting
 
-  //   const path = window.location.pathname.split("/");
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.ctrlKey && e.key === 'Enter' && document.activeElement === textareaRef.current) {
+        e.preventDefault(); 
+        textareaRef.current.form.requestSubmit(); 
+      }
+    };
 
-  //   if (path[4] === "comments") {
+    document.addEventListener('keydown', handleKeyDown);
 
-  //     const id = path[3];
-
-  //     if (path[2] == "polls") {
-
-  //       const pollcomm = await fetch('/api/poll_comments', {
-  //         method: 'POST',
-  //         body: JSON.stringify({
-  //           content: txt,
-  //           pollId: Number(id),
-
-
-  //         }),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           'Sage': isSage ? 'true' : 'false',
-  //           "x-csrf-token": document.cookie
-  //             .split('; ')
-  //             .find(row => row.startsWith('csrfToken='))
-  //             ?.split('=')[1]
-  //         }
-  //       })
-
-  //       const pollcomver = await pollcomm.json()
-
-  //       fetch(`/api/comment_versions`, {
-  //         method: 'POST',
-  //         body: JSON.stringify({
-  //           content: txt,
-  //           commentId: pollcomver.id
-  //         }),
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           "x-csrf-token": document.cookie
-  //             .split('; ')
-  //             .find(row => row.startsWith('csrfToken='))
-  //             ?.split('=')[1]
-  //         }
-  //       })
-  //       await onCommentSent()
-  //       onHandleSent(pollcomver.id)
-  //       onClearReply()
-  //     } else {
-
-  //       const comm = await fetch('/api/comments', {
-  //         method: 'POST',
-  //         body: JSON.stringify({
-  //           content: txt,
-  //           messageId: Number(id),
-  //           boardId: path[2]
-
-  //         }),
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           'Sage': isSage ? 'true' : 'false',
-  //           "x-csrf-token": document.cookie
-  //             .split('; ')
-  //             .find(row => row.startsWith('csrfToken='))
-  //             ?.split('=')[1]
-  //         }
-  //       })
-
-  //       const comver = await comm.json()
-
-  //       fetch(`/api/comment_versions`, {
-  //         method: 'POST',
-  //         body: JSON.stringify({
-  //           content: txt,
-  //           commentId: comver.id
-  //         }),
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           "x-csrf-token": document.cookie
-  //             .split('; ')
-  //             .find(row => row.startsWith('csrfToken='))
-  //             ?.split('=')[1]
-  //         }
-  //       })
-  //       await onCommentSent()
-  //       onHandleSent(comver.id)
-  //       onClearReply()
-  //     }
-
-  //   }
-  //   else {
-
-  //     const res = await fetch('/api/messages', {
-  //       method: 'POST',
-  //       body: JSON.stringify({
-  //         content: txt,
-  //         boardId: path[2]
-
-  //       }),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         "x-csrf-token": document.cookie
-  //           .split('; ')
-  //           .find(row => row.startsWith('csrfToken='))
-  //           ?.split('=')[1]
-  //       }
-  //     })
-
-  //     const ver = await res.json()
-
-
-
-
-
-  //     fetch('/api/versions', {
-  //       method: "POST",
-  //       body: JSON.stringify({
-  //         content: txt,
-  //         messageId: ver.id
-  //       }),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         "x-csrf-token": document.cookie
-  //           .split('; ')
-  //           .find(row => row.startsWith('csrfToken='))
-  //           ?.split('=')[1]
-  //       }
-  //     })
-  //     // if(typeof onSent === 'function'){
-  //     //   console.log("AAAAAAAA")
-  //     //   await onSent()
-  //     // }
-  //     await onMessageSent()
-  //     onHandleSent(ver.id)
-  //   }
-
-  //   e.target.chat.value = "";
-
-
-  // }
-
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   return (
-      <div className="flex justify-center py-4 sm:px-0 px-4">
-        <form onSubmit={onSub}>
-          <div className={`items-center px-3 py-2 rounded-xl border ${colors[color] || colors.webo} ${isLoading ? 'opacity-70' : ''}`}>
-            <textarea 
-            id="chat" 
-            ref={textareaRef} 
-            rows="2" 
-            cols="50" 
-            className="resize p-2.5 w-full text-sm placeholder-gray-400 text-white outline-none bg-transparent" 
+    <div className="flex justify-center py-4 sm:px-0 px-4">
+      <form onSubmit={onSub}>
+        <div className={`items-center px-3 py-2 border border-3 ${colors[color] || colors.webo} ${isLoading ? 'opacity-70' : ''}`}>
+          <textarea
+            id="chat"
+            ref={textareaRef}
+            rows="2"
+            cols="50"
+            className="resize p-2.5 w-full text-sm placeholder-gray-400 text-white outline-none bg-transparent"
             placeholder={isCommentsPage ? "Escribe una respuesta" : "Escribe un nuevo hilo"}
             disabled={isLoading}
-            />
+          />
 
-            <div className="flex items-center justify-between px-1 pb-2">
-              {isCommentsPage ? (
-                <div className="px-1 flex items-center">
-                  <input
-                    type="checkbox"
-                    className="accent-cyan-500/25 bg-black" 
-                    onChange={onSageChange}
-                    checked={isSage}
-                    disabled={isLoading}
-                  />
-                  <span className="px-2 mb-1 text-gray-400 text-sm">sage</span>
-                </div>
-              ) : <div></div>}
+          <div className="flex items-center justify-between px-1 pb-2">
+            {isCommentsPage ? (
+              <div className="px-1 flex items-center">
+                <input
+                  type="checkbox"
+                  className="accent-cyan-500/25 bg-black"
+                  onChange={onSageChange}
+                  checked={isSage}
+                  disabled={isLoading}
+                />
+                <span className="px-2 mb-1 text-gray-400 text-sm">sage</span>
+              </div>
+            ) : <div></div>}
 
-              <button 
-                type="submit" 
-                disabled={isLoading} 
-                className={`inline-flex justify-center p-2 rounded-full cursor-pointer ${text[color] || text.webo} hover:bg-gray-600 active:bg-gray-600 ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {isLoading ? (
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`inline-flex justify-center p-2 cursor-pointer ${text[color] || text.webo} hover:bg-gray-300 hover:text-black active:bg-gray-300 active:text-black ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {/* {isLoading ? (
                     <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -279,12 +155,13 @@ export default function Text({
                     <svg className="w-5 h-5 rotate-90 rtl:-rotate-90" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
                       <path d="m17.914 18.594-8-18a1 1 0 0 0-1.828 0l-8 18a1 1 0 0 0 1.157 1.376L8 18.281V9a1 1 0 0 1 2 0v9.281l6.758 1.689a1 1 0 0 0 1.156-1.376Z" />
                     </svg>
-                  )}
-                <span className="sr-only">Send message</span>
-              </button>
-            </div>
+                  )} */}
+              Publicar
+              <span className="sr-only">Send message</span>
+            </button>
           </div>
-        </form>
-      </div>
+        </div>
+      </form>
+    </div>
   )
 }

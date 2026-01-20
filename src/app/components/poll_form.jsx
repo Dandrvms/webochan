@@ -61,18 +61,18 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
         setOpen(false)
     }
 
-    // Maneja el salto con Enter
+   
     const handleKeyDown = (e, index) => {
         if (e.key === "Enter") {
             e.preventDefault()
             if (index === -1) {
-                // Si está en la pregunta, salta a la primera opción
+                
                 handleAddOption()
             } else if (index === options.length - 1) {
-                // Si está en una opción, salta a la siguiente opción
+                
                 handleAddOption()
             } else if (inputRefs.current[index + 1]) {
-                // Si hay una opción siguiente, salta a ella
+              
                 inputRefs.current[index + 1].focus()
             }
         }
@@ -85,14 +85,14 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
                 <button
                     
                     onClick={openModal}
-                    className="bg-gray-800 text-cyan-400 font-semibold py-2 px-4 rounded hover:bg-gray-600 transition duration-200 my-5 cursor-pointer hover:scale-110 active:bg-gray-600"
+                    className="border text-pink-400 font-semibold py-2 px-4 hover:bg-white hover:text-black active:text-black active:bg-white my-5 cursor-pointer active:bg-white active:text-black"
                 >
                     Crear Encuesta
                 </button>
                 )}
                 {open && (
                     <>
-                        <form onSubmit={onSub} autoFocus autoComplete="off" className="bg-gray-800 p-6 rounded shadow-md w-full max-w-sm">
+                        <form onSubmit={onSub} autoFocus autoComplete="off" className="border p-6 rounded shadow-md w-full max-w-sm">
                             <div className="">
                                 <div className="mb-4">
                                     <label className="block text-cyan-300 font-semibold mb-2" htmlFor="question">Pregunta</label>
@@ -150,15 +150,15 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
                                 </div>
                             ))}
                             <div
-                                className="flex hover:bg-gray-600 py-4 rounded cursor-pointer transition duration-200"
+                                className="group flex hover:bg-white active:bg-white py-4 cursor-pointer"
                                 onClick={handleAddOption}
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="10" className="fill-cyan-600" />
+                                    <circle cx="12" cy="12" r="10" className="fill-cyan-600 group-hover:fill-black group-active:fill-black" />
                                     <line x1="12" y1="8" x2="12" y2="16" stroke="white" />
                                     <line x1="8" y1="12" x2="16" y2="12" stroke="white" />
                                 </svg>
-                                <span className="mx-5 text-cyan-400">Añadir una opción...</span>
+                                <span className="group-hover:text-black group-active:text-black mx-5 text-cyan-400">Añadir una opción...</span>
                             </div>
                             <div className="text-xs text-gray-500">
                                 {options.length < 11 ? (
@@ -174,7 +174,7 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
                                 <div>
                                     <button
                                         type="button"
-                                        className="font-semibold text-cyan-400 py-2 px-2 mx-2 cursor-pointer align-left rounded hover:bg-gray-600 transition duration-200"
+                                        className="font-semibold text-cyan-400 py-2 px-2 mx-2 cursor-pointer align-left  hover:bg-white hover:text-black active:text-black active:bg-white"
                                         onClick={closeModal}
                                         disabled={isSubmitting}
                                     >
@@ -182,7 +182,7 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
                                     </button>
                                     <button
                                         type="submit"
-                                        className="font-semibold text-cyan-400 py-2 px-2 cursor-pointer align-left rounded hover:bg-gray-600 transition duration-200"
+                                        className="font-semibold text-cyan-400 py-2 px-2 cursor-pointer align-left hover:bg-white hover:text-black active:text-black active:bg-white"
                                         disabled={isSubmitting}
                                     >
                                         {isSubmitting ? 'Creando...' : 'Crear'}
@@ -190,7 +190,7 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
                                 </div>
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500">Las encuestas duran 5 días abiertas desde su publicación.</p>
+                                <p className="text-xs text-gray-500">Lee las <a href="/faq" className="text-cyan-400 hover:bg-white hover:text-black">faq</a> antes de hacer una encuesta por primera vez</p>
                             </div>
                         </form>
                     </>

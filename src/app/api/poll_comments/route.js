@@ -5,7 +5,7 @@ import crypto from 'crypto'
 export async function GET(request) {
     try {
         const csrfCookie = request.cookies.get('csrfToken')?.value
-        const csrfHeader = request.headers.get('x-csrf-token')
+        const csrfHeader = request.headers.get('X-CSRF-Token')
 
         if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
             return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
@@ -69,7 +69,7 @@ export async function POST(request) {
 
     try {
         const csrfCookie = request.cookies.get('csrfToken')?.value
-        const csrfHeader = request.headers.get('x-csrf-token')
+        const csrfHeader = request.headers.get('X-CSRF-Token')
 
         if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
             return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
@@ -82,12 +82,13 @@ export async function POST(request) {
         let user = cookieHeader.match(/(?:^|;\s*)user=([^;]*)/)?.[1]
         let secretKey = cookieHeader.match(/(?:^|;\s*)secretKey=([^;]*)/)?.[1]
 
-        let newCookies = []
+        let isNewSession = false
 
         if (!user || !secretKey){
             const session = generateSession()
             secretKey = session.secretKey
             user = session.publicId
+            isNewSession = true
         }
         
         const { content, pollId, parentId } = await request.json()
@@ -121,6 +122,13 @@ export async function POST(request) {
             }
         });
 
+        await prisma.comment_Versions.create({
+            data: {
+                content: newComment.content,
+                commentId: newComment.id
+            }
+        });
+
         const response = NextResponse.json({
             ...newComment,
             canEdit: true,
@@ -129,9 +137,20 @@ export async function POST(request) {
             isEdited: false
         })
 
-        if (newCookies.length > 0){
-            newCookies.forEach(cookie => response.headers.append('Set-Cookie', cookie))
+        if (isNewSession) {
+            response.cookies.set('user', user, {
+                path: '/',
+                maxAge: 30 * 24 * 60 * 60,
+                sameSite: 'lax'
+            });
+            response.cookies.set('secretKey', secretKey, {
+                path: '/',
+                maxAge: 30 * 24 * 60 * 60,
+                httpOnly: true,
+                sameSite: 'lax'
+            });
         }
+
         return response
     } catch (error) {
         console.error("Error en POST /api/poll_comments:", error)

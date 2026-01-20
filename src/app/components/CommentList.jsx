@@ -2,8 +2,10 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from "next/navigation"
 import Text from "@/app/components/text"
+import EditModal from "@/app/components/EditModal"
+import DeleteModal from "@/app/components/DeleteModal"
+import VersionModal from "@/app/components/VersionModal"
 import { useState, useEffect, useCallback } from "react"
-import Loader from "@/app/components/Loader"
 import MarkdownRenderer from './MarkDownRenderer'
 import { useBoardData } from "@/app/hooks/useBoardData"
 import { useForm } from "@/app/hooks/useForm"
@@ -35,13 +37,24 @@ export default function CommentList({ initialComments, messageId, boardId }) {
     const [pendingScrollId, setPendingScrollId] = useState(null)
     const router = useRouter()
     const [reply, setReply] = useState(null)
+    const [editingComment, setEditingComment] = useState(null)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+    const [commentToDelete, setCommentToDelete] = useState(null)
+    const [versionModalConfig, setVersionModalConfig] = useState({ isOpen: false, commentId: null })
+    const [toast, setToast] = useState(null)
+
+    const openVersions = (id) => {
+        setVersionModalConfig({ isOpen: true, commentId: id })
+    }
 
     const {
         data: comments,
+        setData,
         loading,
         addOptimistic,
         replaceTemp,
-        removeTemp
+        removeTemp,
+        updateOptimistic
     } = useBoardData('comments', initialComments, { boardId, messageId })
 
     const handleReferenceClick = useCallback((commentId) => {
@@ -51,13 +64,13 @@ export default function CommentList({ initialComments, messageId, boardId }) {
                 behavior: 'smooth',
                 block: 'center'
             })
-            targetElement.classList.add('bg-blue-950')
+            targetElement.classList.add('bg-gray-950')
             setTimeout(() => {
-                targetElement.classList.remove('bg-blue-950')
+                targetElement.classList.remove('bg-gray-950')
             }, 1000)
         }
     }, [])
-    
+
     const handleReply = (commentId) => {
         setReply(commentId)
     }
@@ -65,7 +78,7 @@ export default function CommentList({ initialComments, messageId, boardId }) {
     const clearReply = () => {
         reply && setReply(null)
     }
-    
+
     const submitComment = useCallback(async (commentData) => {
         const csrfToken = document.cookie
             .split('; ')
@@ -85,7 +98,10 @@ export default function CommentList({ initialComments, messageId, boardId }) {
             }
         })
 
-        if (!res.ok) throw new Error('Error al enviar comentario')
+        if (!res.ok) {
+            setToast('Error al enviar comentario')
+            setTimeout(() => setToast(null), 2500)
+        }
         return await res.json()
     }, [boardId])
 
@@ -121,9 +137,9 @@ export default function CommentList({ initialComments, messageId, boardId }) {
             sage: isSage
         }
 
-        if (boardId !== 'polls') {
-            commentData.boardId = boardId
-        }
+        // if (boardId !== 'polls') {
+        //     commentData.boardId = boardId
+        // }
 
 
         try {
@@ -134,34 +150,67 @@ export default function CommentList({ initialComments, messageId, boardId }) {
             return null
         }
     }, [addOptimistic, boardId, messageId, handleCommentSubmit])
-    // const [comments, setComments] = useState(initialComments)
-    // const [loading, setLoading] = useState(true)
-    // const refreshComments = async () => {
-    //     setLoading(true)
-    //     const csrfToken = document.cookie
-    //         .split('; ')
-    //         .find(row => row.startsWith('csrfToken='))
-    //         ?.split('=')[1]
-
-    //     const res = await fetch('/api/comments', {
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'messageId': messageId,
-    //             'X-CSRF-Token': csrfToken
-    //         }
-    //     })
-
-    //     const data = await res.json()
-    //     setComments(data)
-    //     setLoading(false)
 
 
+    const updateComment = useCallback(async (id, newContent) => {
+        const csrfToken = document.cookie
+            .split("; ")
+            .find(row => row.startsWith('csrfToken'))
+            ?.split("=")[1]
 
-    // }
+        const res = await fetch(`/api/comments/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                content: newContent,
+                isEdited: true,
+                date: new Date().toISOString()
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken
+            }
+        })
 
-    // useEffect(() => {
-    //     refreshComments()
-    // }, [])
+        if (!res.ok) {
+            setToast('Error al actualizar comentario')
+            setTimeout(() => setToast(null), 2500)
+        }
+        return await res.json()
+    }, [])
+
+    const deleteComment = useCallback(async (id) => {
+        // if (!confirm("¿Estás seguro de eliminar este comentario?")) return;
+
+        const csrfToken = document.cookie.split('; ').find(r => r.startsWith('csrfToken='))?.split('=')[1];
+
+
+        const previousData = [...comments];
+        removeTemp(id);
+
+        const res = await fetch(`/api/comments/${id}`, {
+            method: 'DELETE',
+            headers: { 'X-CSRF-Token': csrfToken }
+        });
+
+        if (!res.ok) {
+            setToast("No se pudo eliminar");
+            setData(previousData);
+        }
+
+        router.refresh()
+    }, [comments, removeTemp, setData]);
+
+    const { handleSubmit: handleUpdateSubmit, isSubmitting: isUpdating } = useForm(
+        (data) => updateComment(data.id, data.content),
+        {
+            onSuccess: (updatedItem) => {
+
+                updateOptimistic(updatedItem.id, () => updatedItem);
+                setEditingComment(null);
+            }
+        }
+    );
+
 
     useEffect(() => {
         if (pendingScrollId && comments.some(m => m.id == pendingScrollId)) {
@@ -170,35 +219,76 @@ export default function CommentList({ initialComments, messageId, boardId }) {
         }
     }, [comments, pendingScrollId, handleReferenceClick])
 
+    const handleDeleteClick = (id) => {
+        setCommentToDelete(id)
+        setIsDeleteModalOpen(true)
+    }
+
+    const handleConfirmDelete = () => {
+        if (commentToDelete) {
+            deleteComment(commentToDelete)
+            setCommentToDelete(null)
+        }
+    }
+
     if (loading) return <Loader />
 
     return (
         <>
-            <Text 
-                reply={reply} 
-                onClearReply={clearReply} 
-                onCommentSent={sendCommentOptimistic} 
-                onHandleSent={setPendingScrollId} 
+            <Text
+                reply={reply}
+                onClearReply={clearReply}
+                onCommentSent={sendCommentOptimistic}
+                onHandleSent={setPendingScrollId}
                 color={boardId}
                 isSubmitting={isSubmitting}
             />
 
+            <EditModal
+                isOpen={!!editingComment}
+                onClose={() => setEditingComment(null)}
+                initialContent={editingComment?.content || ""}
+                isSubmitting={isUpdating}
+                onSave={(newContent) => handleUpdateSubmit({ id: editingComment.id, content: newContent })}
+            />
+
+            <DeleteModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={(handleConfirmDelete)}
+            />
+
+            <VersionModal
+                isOpen={versionModalConfig.isOpen}
+                onClose={() => setVersionModalConfig({ isOpen: false, commentId: null })}
+                id={versionModalConfig.commentId}
+                type='comment'
+            />
+
+            {/* Toast de error */}
+            {toast && (
+                <div className="fixed mt-20 top-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50">
+                    {toast}
+                </div>
+            )}
+
+
             {comments.map(cmt => (
-                <div id={cmt.id} key={cmt.id} className={`flex w-full border mt-1 justify-between rounded-b-xl space-x-3 ${borderColors[boardId]}`}>
+                <div id={cmt.id} key={cmt.id} className={`flex w-full border mt-1 justify-between border-dashed border-3 space-x-3 ${borderColors[boardId]}`}>
                     <div>
                         <span className="text-xs font-bold text-gray-500 leading-none px-2"> wbn</span>
                         {cmt.isOP && <span className="text-xs font-bold text-gray-300 leading-none pr-2">OP</span>}
                         <span className={`text-xs font-bold leading-none ${textColors[boardId]}`}>N. {cmt.id}</span>
-                        <span className="text-xs hover:underline hover:text-blue-300 active:underline active:text-blue-300 text-blue-500 cursor-pointer px-4"> 
-                            {cmt.parentId ? (`R >>> ${cmt.parentId}`) : null} 
+                        <span className="text-xs hover:underline hover:text-blue-300 active:underline active:text-blue-300 text-blue-500 cursor-pointer px-4">
+                            {cmt.parentId ? (`R >>> ${cmt.parentId}`) : null}
                         </span>
                         <div className="flex break-word wrap-normal justify-between text-gray-300 p-3">
                             <div className="text-sm">
-                                <MarkdownRenderer 
-                                text={cmt.content} 
-                                onReferenceClick={handleReferenceClick} 
-                                boardId={cmt.boardId} 
-                                comments={comments} 
+                                <MarkdownRenderer
+                                    text={cmt.content}
+                                    onReferenceClick={handleReferenceClick}
+                                    boardId={cmt.boardId}
+                                    comments={comments}
                                 />
                             </div>
                         </div>
@@ -212,29 +302,36 @@ export default function CommentList({ initialComments, messageId, boardId }) {
                             {new Date(cmt.date).toLocaleDateString('es-ES', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                         </span>
                         {cmt.isEdited && (
-                            <Link href={`/board/${boardId}/${messageId}/comments/versions/${cmt.id}`}>
-                                <span className="text-xs hover:underline text-gray-500 active:text-gray-300 active:underline leading-none px-2">
-                                    editado
-                                </span>
-                            </Link>
+                            <span
+                                onClick={() => openVersions(cmt.id)}
+                                className="text-xs hover:underline text-gray-500 active:text-gray-300 active:underline leading-none px-2 cursor-pointer">
+                                editado
+                            </span>
+
                         )}
                     </div>
                     <div className="flex items-center space-x-2">
                         {cmt.canEdit && (
-                            <button 
-                            className="mb-4" 
-                            onClick={() => router.push(`/board/${boardId}/${messageId}/comments/edit/${cmt.id}`)}
-                            >
-                                <span className="ml-6 cursor-pointer text-gray-500 hover:text-white active:text-gray-300">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <>
+                                {/* Botón Editar */}
+                                <button onClick={() => setEditingComment(cmt)}>
+                                    <svg className="text-gray-500 hover:text-cyan-400 cursor-pointer" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                     </svg>
-                                </span>
-                            </button>
+                                </button>
+
+                                {/* Botón Eliminar */}
+                                <button onClick={() => handleDeleteClick(cmt.id)}>
+                                    <svg className="text-gray-500 hover:text-red-500 cursor-pointer" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    </svg>
+                                </button>
+                            </>
                         )}
-                        <button 
-                            className="cursor-pointer rounded-full px-2" 
+                        <button
+                            className="cursor-pointer rounded-full px-2"
                             onClick={() => handleReply(cmt.id)}
                         >
                             <svg
@@ -261,14 +358,14 @@ export default function CommentList({ initialComments, messageId, boardId }) {
                 </div>
             ))}
 
-            <div className={`max-w-3xl mx-auto border-t my-5 ${borderColors[boardId]}`}>
+            {/* <div className={`max-w-3xl mx-auto border-t my-5 ${borderColors[boardId]}`}>
                 <div className="flex justify-center items-center">
                     <a className={`border px-2 ${textColors[boardId]} ${borderColors[boardId]}`} href="/">home</a>
                     <a className={`border px-2 ${textColors[boardId]} ${borderColors[boardId]}`} href="/board/webo">webo</a>
                     <a className={`border px-2 ${textColors[boardId]} ${borderColors[boardId]}`} href="/board/meta">meta</a>
                     <a className={`border px-2 ${textColors[boardId]} ${borderColors[boardId]}`} href="/board/polls">polls</a>
                 </div>
-            </div>
+            </div> */}
         </>
     )
 }

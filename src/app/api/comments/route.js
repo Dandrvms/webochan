@@ -3,9 +3,9 @@ import { prisma } from '@/libs/prisma'
 import crypto from 'crypto'
 
 export async function GET(request) {
-    try {   
+    try {
         const csrfCookie = request.cookies.get('csrfToken')?.value
-        const csrfHeader = request.headers.get('x-csrf-token')
+        const csrfHeader = request.headers.get('X-CSRF-Token')
 
         if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
             return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
@@ -17,7 +17,7 @@ export async function GET(request) {
         const userSecret = secretKeyMatch ? secretKeyMatch[1] : null
 
         const messageId = request.headers.get('messageId')
-        
+
         if (!messageId) {
             return NextResponse.json({ error: 'messageId header is required' }, { status: 400 })
         }
@@ -28,7 +28,7 @@ export async function GET(request) {
             },
             orderBy: {
                 date: 'asc'
-            },  
+            },
         })
 
         const message = await prisma.message.findUnique({
@@ -67,9 +67,9 @@ function generateSession() {
 export async function POST(request) {
     try {
         const csrfCookie = request.cookies.get('csrfToken')?.value
-        const csrfHeader = request.headers.get('x-csrf-token')
-    
-        if(!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader){
+        const csrfHeader = request.headers.get('X-CSRF-Token')
+
+        if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
             return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
         }
 
@@ -78,10 +78,14 @@ export async function POST(request) {
         const cookieHeader = request.headers.get('cookie') || ''
         let user = cookieHeader.match(/(?:^|;\s*)user=([^;]*)/)?.[1]
         let secretKey = cookieHeader.match(/(?:^|;\s*)secretKey=([^;]*)/)?.[1]
+        
+        let isNewSession = false
+
         if (!user || !secretKey) {
             const session = generateSession()
             user = session.publicId
             secretKey = session.secretKey
+            isNewSession = true
         }
 
         const { content, messageId, parentId, boardId } = await request.json()
@@ -115,18 +119,42 @@ export async function POST(request) {
             }
         })
 
-        const processedComment = {
+        await prisma.comment_Versions.create({
+            data: {
+                content: newComment.content,
+                commentId: newComment.id
+            }
+        });
+
+
+        const response = NextResponse.json({
             ...newComment,
             canEdit: true,
             isOP: isOP,
             replies: 0,
             isEdited: false
+        })
+
+        if (isNewSession) {
+            response.cookies.set('user', user, {
+                path: '/',
+                maxAge: 30 * 24 * 60 * 60,
+                sameSite: 'lax'
+            });
+            response.cookies.set('secretKey', secretKey, {
+                path: '/',
+                maxAge: 30 * 24 * 60 * 60,
+                httpOnly: true,
+                sameSite: 'lax'
+            });
         }
+
+
         const origin = request.headers.get('origin') || 'http://localhost:3000'
-        
+
         fetch(`${origin}/api/bot/notify/comments`, {
             method: "POST",
-            headers: { "Content-Type": "application/json", "x-csrf-token": csrfHeader },
+            headers: { "Content-Type": "application/json", "X-CSRF-Token": csrfHeader },
             body: JSON.stringify({
                 id: newComment.id,
                 content: newComment.content,
@@ -135,7 +163,7 @@ export async function POST(request) {
             })
         }).catch(console.error)
 
-        return NextResponse.json(processedComment)
+        return response
     } catch (error) {
         console.error("Error in POST /api/comments:", error)
         return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -145,8 +173,8 @@ export async function POST(request) {
 
     //     const cookieStore = await cookies()
     //     const csrfCookie = cookieStore.get('csrfToken')?.value
-    //     const csrfHeader = request.headers.get('x-csrf-token')
-        
+    //     const csrfHeader = request.headers.get('X-CSRF-Token')
+
     //     if(!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader){
     //         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
     //     }

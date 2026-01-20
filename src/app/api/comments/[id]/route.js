@@ -6,7 +6,7 @@ export async function GET(request, { params }) {
 
     const cookieStore = await cookies()
     const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
+    const csrfHeader = request.headers.get('X-CSRF-Token')
 
     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
@@ -34,7 +34,7 @@ export async function PUT(request, { params }) {
 
     const cookieStore = await cookies()
     const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
+    const csrfHeader = request.headers.get('X-CSRF-Token')
 
     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
@@ -44,8 +44,6 @@ export async function PUT(request, { params }) {
     const userSecret = cookieStore.get('secretKey')
 
     const comment = await prisma.comment.findUnique({ where: { id: Number(id) } })
-
-
 
 
     if (comment.secretKey != userSecret.value) {
@@ -66,14 +64,31 @@ export async function PUT(request, { params }) {
         }
 
     })
-    return NextResponse.json(commentEdited)
+
+    await prisma.comment_Versions.create({
+        data: {
+            content: commentEdited.content,
+            commentId: commentEdited.id
+        }
+    });
+
+
+    const responseComment = {
+        ...commentEdited,
+        canEdit: true,
+        isComment: true,
+        isEdited: true,
+        secretKey: undefined,
+        userId: undefined
+    }
+    return NextResponse.json(responseComment)
 }
 
 export async function DELETE(request, { params }) {
 
     const cookieStore = await cookies()
     const csrfCookie = cookieStore.get('csrfToken')?.value
-    const csrfHeader = request.headers.get('x-csrf-token')
+    const csrfHeader = request.headers.get('X-CSRF-Token')
 
     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })

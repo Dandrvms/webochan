@@ -30,7 +30,7 @@ export const useBoardData = (type, initialData = [], context = {}) => {
       switch (type) {
         case 'messages':
           endpoint = '/api/messages'
-          // IMPORTANTE: Pasar el path completo para que la API pueda extraer boardId
+          
           const path = context.boardId ? `/board/${context.boardId}` : window.location.pathname
           headers.path = path
           break
@@ -57,7 +57,7 @@ export const useBoardData = (type, initialData = [], context = {}) => {
 
       const res = await fetch(endpoint, {
         headers,
-        credentials: 'include' // IMPORTANTE: Incluir cookies
+        credentials: 'include' 
       })
 
       if (!res.ok) {
@@ -68,7 +68,7 @@ export const useBoardData = (type, initialData = [], context = {}) => {
       setData(result)
     } catch (error) {
       console.error(`Error refreshing ${type}:`, error)
-      // En caso de error, mantener los datos iniciales
+      
       setData(initialData)
     } finally {
       setLoading(false)
@@ -82,18 +82,18 @@ export const useBoardData = (type, initialData = [], context = {}) => {
       ...newItem,
       id: `temp-${Date.now()}`,
       date: new Date().toISOString(),
-      canEdit: true,
+      canEdit: false,
       isEdited: false,
       [type === 'messages' ? 'comments' : (type === 'polls' ? 'comments' : 'replies')]: 0,
       [type === 'messages' ? 'commentsContent' : (type === 'polls' ? 'commentsContent' : 'repliesContent')]: []
     }
 
-    // Añadir isOP para comentarios
+   
     if (type === 'comments') {
-      tempItem.isOP = false // Se calculará en la API
+      tempItem.isOP = false
     }
 
-    // Ordenar según el tipo
+    
     if (type === 'messages' || type === 'polls') {
       setData(prev => [tempItem, ...prev])
     } else {
@@ -104,7 +104,7 @@ export const useBoardData = (type, initialData = [], context = {}) => {
   }, [type, getCookie])
 
   const replaceTemp = useCallback((tempId, realItem) => {
-    // La API ya devuelve los datos procesados con canEdit, isOP, etc.
+    
     setData(prev => prev.map(item =>
       item.id === tempId ? realItem : item
     ))

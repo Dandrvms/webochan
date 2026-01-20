@@ -18,6 +18,7 @@ export async function GET(request) {
             path: '/',
             sameSite: 'strict',
             secure: true,
+            httpOnly: false
         });
     }
 

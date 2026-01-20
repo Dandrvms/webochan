@@ -8,7 +8,7 @@ export default function Loader() {
 
   useEffect(() => {
     setLoading(true);
-    // Simula un pequeño tiempo de carga (ajusta según tu necesidad)
+   
     const timeout = setTimeout(() => setLoading(false), 1000);
     return () => clearTimeout(timeout);
   }, [pathname]);

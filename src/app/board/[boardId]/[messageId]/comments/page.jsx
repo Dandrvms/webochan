@@ -5,7 +5,8 @@ import MarkdownRenderer from "@/app/components/MarkDownRenderer"
 
 async function getCommentsByMessageId({ id }) {
 
-    const comments = await prisma.comment.findMany({
+    try{
+        const comments = await prisma.comment.findMany({
         where: {
             messageId: Number(id)
         },
@@ -17,15 +18,22 @@ async function getCommentsByMessageId({ id }) {
         }
     })
     return comments
+    } catch (error) {
+        return null
+    }
 }
 
 async function getMessageById({ id }) {
-    const message = await prisma.message.findUnique({
-        where: {
-            id: Number(id)
-        }
-    })
-    return message
+    try {
+        const message = await prisma.message.findUnique({
+            where: {
+                id: Number(id)
+            }
+        })
+        return message
+    } catch (error) {
+        return null
+    }
 }
 
 
@@ -37,8 +45,34 @@ export default async function Comments({ params, searchParams }) {
     const { messageId } = await params
     const id = messageId
     const message = await getMessageById({ id })
+
+    if (!message) {
+        return (
+            <section>
+                <div className="flex flex-col items-center w-full h-full pb-20">
+                    <div className=" text-center flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-dotted border-4 border-gray-400 mt-20 pb-10 ">
+                        <h1 className="text-md font-bold text-gray-500 mt-10">Ocurrió un error.</h1>
+                        <h1 className="text-2xl font-bold text-gray-500 mt-5">El mensaje que buscas no está disponible.</h1>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
     const comments = await getCommentsByMessageId({ id })
 
+    if (!comments){
+         return (
+            <section>
+                <div className="flex flex-col items-center w-full h-full pb-20">
+                    <div className=" text-center flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-dotted border-4 border-gray-400 mt-20 pb-10 ">
+                        <h1 className="text-md font-bold text-gray-500 mt-10">Ocurrió un error al recuperar comentarios.</h1>
+                        <h1 className="text-2xl font-bold text-gray-500 mt-5">Revisa tu conexión e intenta de nuevo.</h1>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
     const cookieStore = await cookies()
     const userSecret = cookieStore.get('secretKey')?.value
@@ -50,20 +84,21 @@ export default async function Comments({ params, searchParams }) {
             isComment: true,
             replies: _count.replies
         }))
-        
+
 
 
     return (
         <section>
+
             <div className=" flex flex-col items-center w-full h-full pb-20">
-                
-                <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-gray-600 mt-20 pb-10 ">
+
+                <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-dotted border-4 border-gray-400 mt-20 pb-10 ">
 
                     <div className="w-full h-full mt-5 p-5 mb-4 border-b border-gray-700">
                         <span className="text-gray-400 font-bold">wbn</span>
                         <span className="text-cyan-300 font-bold px-2">N. {message.id}</span>
                         <div className="mb-10 flex break-word wrap-normal whitespace-pre-line justify-between text-gray-300 ">
-                            <div><MarkdownRenderer text={message.content}/></div>
+                            <div><MarkdownRenderer text={message.content} /></div>
                         </div>
                         <span className="text-xs text-gray-500 leading-none ">{new Date(message.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</span>
                         <span className="text-xs text-gray-500 leading-none px-2">{new Date(message.date).toLocaleDateString('es-ES', { weekday: 'short' })}</span>

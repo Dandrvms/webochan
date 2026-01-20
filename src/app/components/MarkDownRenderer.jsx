@@ -2,16 +2,15 @@
 import { useState } from 'react';
 
 export default function MarkdownRenderer({ text, onReferenceClick, comments }) {
-    const lines = text.split("\n");
+    const lines = (text || '').split("\n");
     const [tooltip, setTooltip] = useState({ show: false, content: '', x: 0, y: 0 });
 
-    // Helper para buscar comentario por id
+    
     const getCommentById = (id) => {
         if (!comments) return null;
         return comments.find(c => String(c.id) === String(id));
     };
 
-    // Helper para procesar enlaces dentro de un fragmento de texto
     function renderLinks(fragment, keyBase = 0) {
         const urlRegex = /(https?:\/\/[^\s]+)/g;
         const parts = [];
@@ -41,7 +40,7 @@ export default function MarkdownRenderer({ text, onReferenceClick, comments }) {
         return parts;
     }
 
-    // Helper para procesar referencias dentro de un fragmento de texto
+   
     function renderRefs(fragment, keyBase = 0) {
         const refRegex = />>(\d+)/g;
         const parts = [];
@@ -50,7 +49,7 @@ export default function MarkdownRenderer({ text, onReferenceClick, comments }) {
         let key = keyBase;
         while ((match = refRegex.exec(fragment)) !== null) {
             if (match.index > lastIndex) {
-                // Procesa enlaces en el texto normal
+              
                 parts.push(...renderLinks(fragment.slice(lastIndex, match.index), key));
                 key += 1000;
             }
@@ -139,7 +138,7 @@ export default function MarkdownRenderer({ text, onReferenceClick, comments }) {
                     </span>
                 );
             })}
-            {/* Tooltip */}
+            
             {tooltip.show && tooltip.content && (
                 <div
                     style={{

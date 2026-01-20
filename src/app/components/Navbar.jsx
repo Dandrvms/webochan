@@ -8,18 +8,29 @@ import { useEffect } from 'react'
 export default function Navbar() {
 
     useEffect(() => {
-        fetch("/api/csrf-token");
+        async function fetchData(){
+            try {
+                const response = await fetch("/api/csrf-token");
+                if (!response.ok) {
+                    console.error("Failed to fetch CSRF token");
+                }
+            } catch (error) {
+                console.error("Error fetching CSRF token:", error);
+            }
+        }
+
+        fetchData()
     }, [])
 
     return (
-        <nav className="sticky top-0 z-50 w-full bg-gray-900/80 backdrop-blur-none border-b border-gray-800 px-4 py-1">
+        <nav className="sticky top-0 z-50 w-full border border-2 bg-gray-800/50 border-gray-800 px-4 py-1">
             <div className="max-w-6xl mx-auto">
-                <a className="text-xs text-blue-600 hover:text-white px-2" href="/">[home]</a>
-                <a className="text-xs text-blue-600 hover:text-white px-2" href="/board/webo">[webo]</a>
-                <a className="text-xs text-blue-600 hover:text-white px-2" href="/board/meta">[meta]</a>
-                <a className="text-xs text-blue-600 hover:text-white px-2" href="/board/polls">[polls]</a>
-                <a className="text-xs text-blue-600 hover:text-white px-2" href="/faq">[faq]</a>
-                <a className="text-xs text-teal-500 hover:text-white px-2" href="https://t.me/webochanbot">[bot]</a>
+                <a className="text-xs text-blue-600 hover:text-black hover:bg-gray-200 active:text-black active:bg-gray-200 px-2" href="/">[home]</a>
+                <a className="text-xs text-blue-600 hover:text-black hover:bg-gray-200 active:text-black active:bg-gray-200 px-2" href="/board/webo">[webo]</a>
+                <a className="text-xs text-blue-600 hover:text-black hover:bg-gray-200 active:text-black active:bg-gray-200 px-2" href="/board/meta">[meta]</a>
+                <a className="text-xs text-blue-600 hover:text-black hover:bg-gray-200 active:text-black active:bg-gray-200 px-2" href="/board/polls">[polls]</a>
+                <a className="text-xs text-blue-600 hover:text-black hover:bg-gray-200 active:text-black active:bg-gray-200 px-2" href="/faq">[faq]</a>
+                <a className="text-xs text-teal-500 hover:text-black hover:bg-gray-200 active:text-black active:bg-gray-200 px-2" href="/bot">[bot]</a>
 
                 <div className="flex items-center justify-between">
                 </div>

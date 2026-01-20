@@ -4,45 +4,42 @@ import { prisma } from "@/libs/prisma"
 
 async function getCommentsByPollId({ id }) {
 
-    const comments = await prisma.comment.findMany({
-        where: {
-            pollId: Number(id)
-        },
-        orderBy: {
-            date: 'asc'
-        },
-        include: {
-            _count: { select: { replies: true } }
-        }
-    })
-    return comments
+    try {
+        const comments = await prisma.comment.findMany({
+            where: {
+                pollId: Number(id)
+            },
+            orderBy: {
+                date: 'asc'
+            },
+            include: {
+                _count: { select: { replies: true } }
+            }
+        })
+        return comments
+    } catch (error) {
+        return null
+    }
 }
 
 async function getPollById({ id }) {
-    const poll = await prisma.poll.findUnique({
-        where: {
-            id: Number(id)
-        },
-        include: {
-            options: {
-                include: {
-                    votes: true
-                }
+    try {
+        const poll = await prisma.poll.findUnique({
+            where: {
+                id: Number(id)
             },
-        //     _count: { select: { comments: true } }
-        //     , comments: {
-        //         take: 3,
-        //         orderBy: { date: 'desc' },
-        //         include: { userId: false, secretKey: false }
-        //     },
-        //     userId: false,
-        }
-    })
-
-
-
-
-    return poll
+            include: {
+                options: {
+                    include: {
+                        votes: true
+                    }
+                },
+            }
+        })
+        return poll
+    } catch (error) {
+        return null
+    }
 }
 
 
@@ -54,7 +51,34 @@ export default async function PollsComments({ params, searchParams }) {
     const { pollId } = await params
     const id = pollId
     const poll = await getPollById({ id })
+
+    if (!poll) {
+        return (
+            <section>
+                <div className="flex flex-col items-center w-full h-full pb-20">
+                    <div className=" text-center flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-dotted border-4 border-gray-400 mt-20 pb-10 ">
+                        <h1 className="text-md font-bold text-gray-500 mt-10">Ocurrió un error.</h1>
+                        <h1 className="text-2xl font-bold text-gray-500 mt-5">La encuesta que buscas no está disponible.</h1>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
     const comments = await getCommentsByPollId({ id })
+
+    if (!comments) {
+        return (
+            <section>
+                <div className="flex flex-col items-center w-full h-full pb-20">
+                    <div className=" text-center flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-dotted border-4 border-gray-400 mt-20 pb-10 ">
+                        <h1 className="text-md font-bold text-gray-500 mt-10">Ocurrió un error al recuperar comentarios.</h1>
+                        <h1 className="text-2xl font-bold text-gray-500 mt-5">Revisa tu conexión a internet.</h1>
+                    </div>
+                </div>
+            </section>
+        );
+    }
 
 
     const cookieStore = await cookies()
@@ -75,9 +99,9 @@ export default async function PollsComments({ params, searchParams }) {
         <section>
             <div className=" flex flex-col items-center w-full h-full pb-20">
 
-                <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-gray-700 mt-20 pb-10 ">
+                <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border border-dotted border-4 border-gray-400 mt-20 pb-10 ">
 
-                    <div className="flex flex-col w-full max-w-3xl border border-gray-800 rounded-lg p-5 space-y-2">
+                    <div className="flex flex-col w-full max-w-3xl p-5 space-y-2">
                         <span className="text-xs font-bold text-gray-500 leading-none px-2">wbn</span>
                         <span className="text-xs font-bold text-pink-400 leading-none px-2">{`P. ${poll.id}`}</span>
                         <div className=" text-gray-300 p-3 rounded-l-lg rounded-lg ">

@@ -6,7 +6,7 @@ export async function POST(request) {
 
     try {
         const csrfCookie = request.cookies.get('csrfToken')?.value
-        const csrfHeader = request.headers.get('x-csrf-token')
+        const csrfHeader = request.headers.get('X-CSRF-Token')
 
         if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
             return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
@@ -16,13 +16,14 @@ export async function POST(request) {
         let user = cookieHeader.match(/(?:^|;\s*)user=([^;]*)/)?.[1]
         let secretKey = cookieHeader.match(/(?:^|;\s*)secretKey=([^;]*)/)?.[1]
 
-        let newCookies = []
+        let isNewSession = false
 
 
         if (!user || !secretKey) {
             const session = generateSession()
             secretKey = session.secretKey
             user = session.publicId
+            isNewSession = true
         }
 
         const { pollId, optionId } = await request.json();
@@ -79,9 +80,21 @@ export async function POST(request) {
             comments: updatedPoll._count.comments
         })
 
-        if (newCookies.length > 0){
-            newCookies.forEach(cookie => response.headers.append('Set-Cookie', cookie))
+        if (isNewSession) {
+            response.cookies.set('user', user, {
+                path: '/',
+                maxAge: 30 * 24 * 60 * 60,
+                sameSite: 'lax'
+            });
+            response.cookies.set('secretKey', secretKey, {
+                path: '/',
+                maxAge: 30 * 24 * 60 * 60,
+                httpOnly: true,
+                sameSite: 'lax'
+            });
         }
+
+        
         return response;
     } catch (error) {
         console.error("Error voting:", error)
@@ -95,7 +108,7 @@ export async function POST(request) {
 
 //     const cookieStore = await cookies()
 //     const csrfCookie = cookieStore.get('csrfToken')?.value
-//     const csrfHeader = request.headers.get('x-csrf-token')
+//     const csrfHeader = request.headers.get('X-CSRF-Token')
 
 //     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
 //         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
