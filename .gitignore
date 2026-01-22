@@ -49,3 +49,4 @@ src/generated/prisma
 prisma/migrations/
 
 src/app/test
+localConfig.js

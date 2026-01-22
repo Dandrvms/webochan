@@ -121,7 +121,7 @@ export default async function PollsComments({ params, searchParams }) {
                                                 <div className=" w-full h-2 mt-1">
 
                                                     <div
-                                                        className=" h-2 rounded bg-fuchsia-400 transition-all duration-300"
+                                                        className=" h-2 bg-pink-400 transition-all duration-300"
                                                         style={{ width: `${voteCount == 0 && totalVotes == 0 ? 5 : Math.max(percent, 5)}%` }}
 
                                                     ></div>

@@ -29,7 +29,7 @@ export default function Text({
   const pathSegments = typeof window !== 'undefined'
     ? window.location.pathname.split("/")
     : []
-  const isCommentsPage = pathSegments[4] === "comments"
+  const isCommentsPage = !!onCommentSent
   const isPollComments = pathSegments[2] === "polls" && isCommentsPage
 
   const onSageChange = (e) => {
@@ -67,21 +67,12 @@ export default function Text({
         if (onCommentSent && typeof onCommentSent === 'function') {
           const tempId = await onCommentSent(txt, reply, isSage)
           result = { id: tempId }
-        } else {
-          console.warn("onCommentSent no es una función válida")
-          return
-        }
-        if (onClearReply) onClearReply()
-      } else {
-
-        if (onMessageSent && typeof onMessageSent === 'function') {
+          if (onClearReply) onClearReply()
+        } else if (onMessageSent && typeof onMessageSent === 'function') {
           const path = window.location.pathname.split("/");
           const boardId = path[2]
           result = await onMessageSent(txt, boardId)
-        } else {
-          console.warn("onMessageSent no es una función válida")
-          return
-        }
+        } 
       }
 
       if (result && result.id && onHandleSent) {
