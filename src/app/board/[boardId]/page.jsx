@@ -96,7 +96,7 @@ export default async function Board({ params }) {
                     {boards.includes(boardId) ? (
                         <>
                             <p className={`text-4xl font-bold text-${colors[boardId]} leading-none`}>{`/${boardId}/`}</p>
-                            <p className="font-bold text-gray-500 leading-none mt-2 text-center">{boardId === "webo" ? "Cosas de webo" : boardId === "meta" ? "Sugerencias, Mejoras y Reporte de errores" : boardId === "test" ? "Tablón de pruebas del dev" : null}</p>
+                            <p className="font-bold text-gray-500 leading-none mt-2 text-center">{boardId === "webo" ? "Cosas de webo" : boardId === "meta" ? "Sugerencias y reportes" : boardId === "test" ? "Tablón de pruebas del dev" : null}</p>
                         </>
                     ) : (
                         <div className=" text-center flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-dotted border-4 border-gray-400 mt-20 p-10 ">

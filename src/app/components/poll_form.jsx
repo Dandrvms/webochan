@@ -85,7 +85,7 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
                 <button
                     
                     onClick={openModal}
-                    className="border text-green-400 border-gray-300 rounded font-semibold py-2 px-4 hover:bg-white hover:text-black active:text-black active:bg-white my-5 cursor-pointer active:bg-white active:text-black"
+                    className="border text-green-400 border-gray-300 rounded py-2 px-4 hover:bg-white hover:text-black active:text-black active:bg-white my-5 cursor-pointer active:bg-white active:text-black"
                 >
                     Crear Encuesta
                 </button>
@@ -95,12 +95,12 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
                         <form onSubmit={onSub} autoFocus autoComplete="off" className="border p-6 rounded shadow-md w-full max-w-sm">
                             <div className="">
                                 <div className="mb-4">
-                                    <label className="block text-green-400 font-semibold mb-2" htmlFor="question">Pregunta</label>
+                                    <label className="block text-green-400 mb-2" htmlFor="question">Pregunta</label>
                                     <input
                                         type="text"
                                         id="question"
                                         name="question"
-                                        className="w-full py-2 outline-none placeholder-gray-400"
+                                        className="w-full py-2 outline-none placeholder-gray-400 [caret-shape:block] caret-white"
                                         placeholder="Haz una pregunta"
                                         required
                                         autoComplete="off"
@@ -113,7 +113,7 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
                                 </div>
                             </div>
                             <div className="mb-4">
-                                <label className="block text-green-400 font-semibold mb-2" htmlFor="options">Opciones de respuesta</label>
+                                <label className="block text-green-400 mb-2" htmlFor="options">Opciones de respuesta</label>
                             </div>
                             {options.map((option, index) => (
                                 <div key={index} className="flex">
@@ -124,7 +124,7 @@ export default function Poll_Form({ refreshPolls, onHandleSent, isSubmitting }) 
                                         id={`option-${index}`}
                                         name="options"
                                         value={option}
-                                        className="w-full py-2 outline-none placeholder-gray-400"
+                                        className="w-full py-2 outline-none placeholder-gray-400 [caret-shape:block] caret-white"
                                         placeholder="Opción"
                                         required
                                         autoComplete="off"

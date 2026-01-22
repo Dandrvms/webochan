@@ -8,6 +8,7 @@ import DeleteModal from "@/app/components/DeleteModal"
 import VersionModal from "@/app/components/VersionModal"
 import { useRouter } from "next/navigation"
 import MarkdownRenderer from "./MarkDownRenderer"
+import { ExpandableMarkdown } from "./ExpandableContent"
 import { useBoardData } from "@/app/hooks/useBoardData"
 import { useForm } from "@/app/hooks/useForm"
 
@@ -288,7 +289,7 @@ export default function MessageList({ initialMessages }) {
             <div className="flex-col flex items-center w-full h-full">
                 <div className="flex flex-col flex-grow w-full max-w-xl pt-10 items-center">
                     {messages && messages.map((message) => (
-                        <div id={message.id} key={message.id} className={`md:w-10/8 w-screen border border-b-0 border-dotted border-4 pb-4 ${borderColors[message.boardId]}`}>
+                        <div id={message.id} key={message.id} className={`md:w-10/7 w-screen border border-b-0 border-dotted border-4 pb-4 ${borderColors[message.boardId]}`}>
                             <div className="flex space-x-3 w-full mb">
                                 <div className="flex w-full mt-2">
                                     <div>
@@ -299,7 +300,13 @@ export default function MessageList({ initialMessages }) {
                                         )}
                                         <div className="flex justify-between text-gray-300 p-3 rounded-l-lg rounded-lg">
                                             <div className="break-word wrap-normal text-sm overflow-hidden text-ellipsis line-clamp-10">
-                                                <MarkdownRenderer text={message.content} boardId={message.boardId} />
+                                                <ExpandableMarkdown
+                                                    text={message.content}
+                                                    boardId={message.boardId}
+                                                    limit={500} // Ajusta el límite a tu gusto
+                                                    onReferenceClick={handleReferenceSent}
+                                                    comments={message.commentsContent}
+                                                />
                                             </div>
                                         </div>
                                         <span className="text-xs text-gray-500 leading-none px-2">

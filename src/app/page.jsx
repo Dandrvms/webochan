@@ -39,7 +39,7 @@ export default function Homepage() {
 
 
           {/* Boards Section */}
-          <div className="mb-8 border-t border-gray-700 pt-5">
+          <div className="mb-8 border-gray-700 pt-5">
             <fieldset className="border border-gray-300 p-4 rounded-md">
               <legend className="text-2xl font-semibold px-2 ml-4 text-white">
                 Tablones
@@ -75,7 +75,7 @@ export default function Homepage() {
                 {/* /polls/ Board */}
                 <Link href="board/polls">
                   <div className="group py-2 px-6 cursor-pointer hover:bg-white active:bg-white">
-                    <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-pink-400 group-hover:text-black">polls</span> - Encuestas</p>
+                    <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-pink-400 group-hover:text-black">polls</span> - encuestas</p>
                     <div className="flex items-center text-gray-500 text-sm">
                       {/* <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
                       <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -116,23 +116,20 @@ export default function Homepage() {
                     Webochan es el tablón de mensajes anónimos oficial de{" "}
                     <a
                       href="https://t.me/encuestaswebo"
-                      className="font-bold text-blue-400 hover:text-black hover:bg-white active:bg-white active:text-black"
+                      className="underline hover:text-black hover:bg-white active:bg-white active:text-black"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Webo
+                      webo
                     </a>. Por ahora el formato es de solo texto. Anímate a crear hilos, hacer encuestas y decir cosas. Aceptamos sugerencias de todos los usuarios.
                   </p>
                   <a
                     href="https://t.me/webochanlog"
-                    className="inline-flex items-center font-bold text-blue-400 hover:text-black hover:bg-white active:bg-white active:text-black transition-colors"
+                    className="inline-flex items-center text-lime-500 hover:text-black hover:bg-white active:bg-white active:text-black transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {/* <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none">
-                      <path d="M21 5L2 12.5L9 13.5M21 5L18.5 21L9 13.5M21 5L9 13.5M9 13.5V19L12.5 15.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg> */}
-                    {"Changelog"}
+                    <span className="font-extrabold">{">"}</span>Changelog
                   </a>
                 </div>
               </div>

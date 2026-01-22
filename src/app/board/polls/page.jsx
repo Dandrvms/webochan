@@ -89,7 +89,7 @@ export default async function PollsPage() {
 
 
                     <p className="text-4xl font-bold text-pink-500 leading-none">/polls/</p>
-                    <p className="font-bold text-gray-500 leading-none mt-2">Tablón de solamente encuestas</p>
+                    <p className="font-bold text-gray-500 leading-none mt-2">Solo encuestas</p>
 
                 </div>
             </div>

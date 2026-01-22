@@ -1,5 +1,8 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react"
+// Importamos el renderer que ya tienes
+import MarkdownRenderer from "./MarkDownRenderer"
+
 export default function Text({
   reply,
   onClearReply,
@@ -7,93 +10,41 @@ export default function Text({
   onMessageSent,
   onHandleSent,
   color,
-  isSubmitting = false
+  isSubmitting = false,
+  comments = [] // Añadimos comments por prop para las referencias en el preview
 }) {
   const textareaRef = useRef(null)
+  const [content, setContent] = useState("") // Nuevo estado para el texto en tiempo real
   const [isSage, setIsSage] = useState(false)
   const [localIsSubmitting, setLocalIsSubmitting] = useState(false)
 
-  const colors = {
-    webo: "border-cyan-600",
-    meta: "border-purple-400",
-    polls: "border-pink-300"
-  }
+  // ... (tus objetos de colores, caret y accent se mantienen igual)
+  const colors = { webo: "border-cyan-600", meta: "border-purple-400", polls: "border-pink-300" }
+  const textCol = { webo: "text-blue-500", meta: "text-purple-500", polls: "text-fuchsia-400" }
+  const caret = { webo: "caret-cyan-400", meta: "caret-purple-400", polls: "caret-fuchsia-400" }
+  const accent = { webo: "accent-cyan-400", meta: "accent-purple-400", polls: "accent-fuchsia-400" }
 
-  const text = {
-    webo: "text-blue-500",
-    meta: "text-purple-500",
-    polls: "text-fuchsia-400"
-  }
-
-
-  const pathSegments = typeof window !== 'undefined'
-    ? window.location.pathname.split("/")
-    : []
   const isCommentsPage = !!onCommentSent
-  const isPollComments = pathSegments[2] === "polls" && isCommentsPage
 
-  const onSageChange = (e) => {
-    setIsSage(e.target.checked)
-  }
-
+  // Sincronizar el estado cuando llega una respuesta (>>ID)
   useEffect(() => {
-    if (reply && textareaRef.current) {
-      const current = textareaRef.current.value
+    if (reply) {
       const refText = `>>${reply}`
-      // Solo agrega si no existe ya la referencia exacta
-      if (!current.includes(refText)) {
-        const newValue = current.length > 0 && !current.endsWith('\n')
-          ? current + "\n" + refText + "\n"
-          : current + refText + "\n"
-        textareaRef.current.value = newValue
-        textareaRef.current.focus()
+      if (!content.includes(refText)) {
+        const newValue = content.length > 0 && !content.endsWith('\n')
+          ? content + "\n" + refText + "\n"
+          : content + refText + "\n"
+        setContent(newValue)
+        textareaRef.current?.focus()
       }
     }
   }, [reply])
 
-  const onSub = async (e) => {
-    e.preventDefault()
-    const txt = e.target.chat.value.trim()
-
-    if (txt.length === 0) return
-
-    setLocalIsSubmitting(true)
-
-    try {
-      let result
-
-      if (isCommentsPage) {
-
-        if (onCommentSent && typeof onCommentSent === 'function') {
-          const tempId = await onCommentSent(txt, reply, isSage)
-          result = { id: tempId }
-          if (onClearReply) onClearReply()
-        } else if (onMessageSent && typeof onMessageSent === 'function') {
-          const path = window.location.pathname.split("/");
-          const boardId = path[2]
-          result = await onMessageSent(txt, boardId)
-        } 
-      }
-
-      if (result && result.id && onHandleSent) {
-        onHandleSent(result.id)
-      }
-
-      e.target.chat.value = "";
-    } catch (error) {
-      console.error("Error en onSub:", error)
-    } finally {
-      setLocalIsSubmitting(false)
-    }
-  }
-
-  const isLoading = isSubmitting || localIsSubmitting
-
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.key === 'Enter' && document.activeElement === textareaRef.current) {
-        e.preventDefault(); 
-        textareaRef.current.form.requestSubmit(); 
+        e.preventDefault();
+        textareaRef.current.form.requestSubmit();
       }
     };
 
@@ -104,55 +55,100 @@ export default function Text({
     };
   }, []);
 
+  const onSub = async (e) => {
+    e.preventDefault()
+    const txt = content.trim() // Usamos el estado en lugar del DOM directo
+
+    if (txt.length === 0) return
+    setLocalIsSubmitting(true)
+
+    try {
+      let result
+      if (isCommentsPage) {
+        if (onCommentSent) {
+          const tempId = await onCommentSent(txt, reply, isSage)
+          result = { id: tempId }
+          if (onClearReply) onClearReply()
+        }
+      } else if (onMessageSent) {
+        const path = window.location.pathname.split("/");
+        const boardId = path[2]
+        result = await onMessageSent(txt, boardId)
+      }
+
+      if (result?.id && onHandleSent) onHandleSent(result.id)
+      setContent("") // Limpiamos el estado
+    } catch (error) {
+      console.error("Error en onSub:", error)
+    } finally {
+      setLocalIsSubmitting(false)
+    }
+  }
+
+  const isLoading = isSubmitting || localIsSubmitting
+
   return (
-    <div className="flex justify-center py-4 sm:px-0 px-4">
-      <form onSubmit={onSub}>
-        <div className={`items-center px-3 py-2 border border-3 ${colors[color] || colors.webo} ${isLoading ? 'opacity-70' : ''}`}>
+    <div className="flex flex-col items-center py-4 sm:px-0 px-4 w-full max-w-xl mx-auto">
+      <form onSubmit={onSub} className="w-full">
+        <div className={`px-3 py-2 border border-3 ${colors[color] || colors.webo} ${isLoading ? 'opacity-70' : ''}`}>
+
+          {/* Label de la terminal */}
+          <div className="text-[10px] text-gray-500 mb-1 font-mono uppercase ml-2">
+            [ INPUT_BUFFER_{color?.toUpperCase() || 'SYS'} ]
+          </div>
+
           <textarea
             id="chat"
             ref={textareaRef}
-            rows="2"
-            cols="50"
-            className="resize p-2.5 w-full text-sm placeholder-gray-400 text-white outline-none bg-transparent"
-            placeholder={isCommentsPage ? "Escribe una respuesta" : "Escribe un nuevo hilo"}
+            rows="3"
+            className={`resize-y p-2.5 w-full text-sm placeholder-gray-600 text-white outline-none bg-transparent ${caret[color]} [caret-shape:block] font-mono`}
+            placeholder={isCommentsPage ? "Escribe una respuesta..." : "Escribe un nuevo hilo..."}
             disabled={isLoading}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
           />
 
-          <div className="flex items-center justify-between px-1 pb-2">
+          <div className="flex items-center justify-between px-1 pb-2 border-t border-gray-800 pt-2">
             {isCommentsPage ? (
-              <div className="px-1 flex items-center">
+              <div className="flex items-center">
                 <input
                   type="checkbox"
-                  className="accent-cyan-500/25 bg-black"
-                  onChange={onSageChange}
+                  className={`${accent[color]} bg-black`}
+                  onChange={(e) => setIsSage(e.target.checked)}
                   checked={isSage}
                   disabled={isLoading}
                 />
-                <span className="px-2 mb-1 text-gray-400 text-sm">sage</span>
+                <span className="px-2 text-gray-500 text-[10px] uppercase font-mono">sage</span>
               </div>
-            ) : <div></div>}
+            ) : <div />}
 
             <button
               type="submit"
               disabled={isLoading}
-              className={`inline-flex justify-center p-2 cursor-pointer ${text[color] || text.webo} hover:bg-gray-300 hover:text-black active:bg-gray-300 active:text-black ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`text-xs font-mono uppercase px-3 py-1 border border-transparent hover:border-current ${textCol[color] || textCol.webo} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {/* {isLoading ? (
-                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5 rotate-90 rtl:-rotate-90" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 20">
-                      <path d="m17.914 18.594-8-18a1 1 0 0 0-1.828 0l-8 18a1 1 0 0 0 1.157 1.376L8 18.281V9a1 1 0 0 1 2 0v9.281l6.758 1.689a1 1 0 0 0 1.156-1.376Z" />
-                    </svg>
-                  )} */}
-              Publicar
-              <span className="sr-only">Send message</span>
+              {isLoading ? "> PROCESANDO..." : "> PUBLICAR"}
             </button>
           </div>
         </div>
       </form>
+
+
+      {content.trim().length > 0 && (
+        <div className={`mt-4 w-full p-4 border border-dashed ${colors[color] || colors.webo} bg-black/50 opacity-80 animate-pulse-subtle`}>
+          <div className="text-[10px] text-gray-500 mb-3 font-mono uppercase flex justify-between">
+            <span>[ LIVE_RENDER_OUTPUT ]</span>
+            {/* <span className="animate-pulse">●</span> */}
+          </div>
+          <div className="text-sm break-words overflow-hidden text-gray-300">
+            <MarkdownRenderer
+              text={content}
+              comments={comments}
+              boardId={color}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
