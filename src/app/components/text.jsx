@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react"
-// Importamos el renderer que ya tienes
+
 import MarkdownRenderer from "./MarkDownRenderer"
 
 export default function Text({
@@ -11,14 +11,14 @@ export default function Text({
   onHandleSent,
   color,
   isSubmitting = false,
-  comments = [] // Añadimos comments por prop para las referencias en el preview
+  comments = [] 
 }) {
   const textareaRef = useRef(null)
-  const [content, setContent] = useState("") // Nuevo estado para el texto en tiempo real
+  const [content, setContent] = useState("") 
   const [isSage, setIsSage] = useState(false)
   const [localIsSubmitting, setLocalIsSubmitting] = useState(false)
 
-  // ... (tus objetos de colores, caret y accent se mantienen igual)
+
   const colors = { webo: "border-cyan-600", meta: "border-purple-400", polls: "border-pink-300" }
   const textCol = { webo: "text-blue-500", meta: "text-purple-500", polls: "text-fuchsia-400" }
   const caret = { webo: "caret-cyan-400", meta: "caret-purple-400", polls: "caret-fuchsia-400" }
@@ -26,7 +26,7 @@ export default function Text({
 
   const isCommentsPage = !!onCommentSent
 
-  // Sincronizar el estado cuando llega una respuesta (>>ID)
+  
   useEffect(() => {
     if (reply) {
       const refText = `>>${reply}`
@@ -57,7 +57,7 @@ export default function Text({
 
   const onSub = async (e) => {
     e.preventDefault()
-    const txt = content.trim() // Usamos el estado en lugar del DOM directo
+    const txt = content.trim() 
 
     if (txt.length === 0) return
     setLocalIsSubmitting(true)
@@ -77,7 +77,7 @@ export default function Text({
       }
 
       if (result?.id && onHandleSent) onHandleSent(result.id)
-      setContent("") // Limpiamos el estado
+      setContent("") 
     } catch (error) {
       console.error("Error en onSub:", error)
     } finally {
