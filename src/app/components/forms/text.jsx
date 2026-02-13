@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, useRef, useCallback } from "react"
 
-import MarkdownRenderer from "./MarkDownRenderer"
+import MarkdownRenderer from "@/app/components/engines/MarkDownRenderer"
 
 export default function Text({
   reply,
@@ -11,10 +11,10 @@ export default function Text({
   onHandleSent,
   color,
   isSubmitting = false,
-  comments = [] 
+  comments = []
 }) {
   const textareaRef = useRef(null)
-  const [content, setContent] = useState("") 
+  const [content, setContent] = useState("")
   const [isSage, setIsSage] = useState(false)
   const [localIsSubmitting, setLocalIsSubmitting] = useState(false)
 
@@ -26,7 +26,7 @@ export default function Text({
 
   const isCommentsPage = !!onCommentSent
 
-  
+
   useEffect(() => {
     if (reply) {
       const refText = `>>${reply}`
@@ -57,7 +57,7 @@ export default function Text({
 
   const onSub = async (e) => {
     e.preventDefault()
-    const txt = content.trim() 
+    const txt = content.trim()
 
     if (txt.length === 0) return
     setLocalIsSubmitting(true)
@@ -77,7 +77,7 @@ export default function Text({
       }
 
       if (result?.id && onHandleSent) onHandleSent(result.id)
-      setContent("") 
+      setContent("")
     } catch (error) {
       console.error("Error en onSub:", error)
     } finally {

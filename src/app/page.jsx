@@ -25,7 +25,7 @@ export default function Homepage() {
               </span>
             </h1> */}
 
-            <img src="/img/photo_2026-01-19_19-58-24.jpg"></img>
+            <img src="/img/photo_2026-01-19_19-58-24.jpg" alt="Webochan"></img>
 
             {/* <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               Comunícate de forma anónima con la comunidad Webo
@@ -85,7 +85,7 @@ export default function Homepage() {
                   </div>
                 </Link>
 
-                <Link href="https://t.me/webochanbot">
+                <Link href="/bot">
                   <div className="group py-2 px-6 cursor-pointer hover:bg-white active:bg-white">
                     <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-teal-400 group-hover:text-black">bot</span> - telegram</p>
                     <div className="flex items-center text-gray-500 text-sm">

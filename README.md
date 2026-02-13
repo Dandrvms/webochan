@@ -38,8 +38,7 @@ Instalar dependencias y ejecutar
 ### prisma/ schema.prisma - Esquema de la base de datos ...
 
 
-
-
+────────────────────────────
 
 
 

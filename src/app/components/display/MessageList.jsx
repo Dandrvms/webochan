@@ -1,14 +1,14 @@
 "use client"
 
-import Loader from "@/app/components/Loader"
+import Loader from "@/app/components/modals/Loader"
 import { useState, useEffect, useCallback } from "react"
-import Text from "@/app/components/text"
-import EditModal from "@/app/components/EditModal"
-import DeleteModal from "@/app/components/DeleteModal"
-import VersionModal from "@/app/components/VersionModal"
+import Text from "@/app/components/forms/text"
+import EditModal from "@/app/components/modals/EditModal"
+import DeleteModal from "@/app/components/modals/DeleteModal"
+import VersionModal from "@/app/components/modals/VersionModal"
 import { useRouter } from "next/navigation"
-import MarkdownRenderer from "./MarkDownRenderer"
-import { ExpandableMarkdown } from "./ExpandableContent"
+import MarkdownRenderer from "@/app/components/engines/MarkDownRenderer"
+import { ExpandableMarkdown } from "@/app/components/engines/ExpandableContent"
 import { useBoardData } from "@/app/hooks/useBoardData"
 import { useForm } from "@/app/hooks/useForm"
 
@@ -289,11 +289,11 @@ export default function MessageList({ initialMessages }) {
             <div className="flex-col flex items-center w-full h-full">
                 <div className="flex flex-col flex-grow w-full max-w-xl pt-10 items-center">
                     {messages && messages.map((message) => (
-                        <div id={message.id} key={message.id} className={`md:w-10/7 w-screen border border-b-0 border-dotted border-4 pb-4 ${borderColors[message.boardId]}`}>
+                        <div id={message.id} key={message.id} className={`md:w-10/7 w-screen border border-b-0 border-2 pb-4 ${borderColors[message.boardId]}`}>
                             <div className="flex space-x-3 w-full mb">
                                 <div className="flex w-full mt-2">
                                     <div>
-                                        <span className="text-xs font-bold text-gray-500 leading-none px-2">wbn</span>
+                                        <span className={`text-xs font-bold ${message.author? "text-indigo-300" : "text-gray-500"} leading-none px-2`}>{message.author? message.author.username : "wbn"}</span>
                                         <span className={`text-xs font-bold leading-none px-2 ${textColors[message.boardId]}`}>{`Th. ${message.id}`}</span>
                                         {message.isPinned && (
                                             <span className="text-xs text-gray-500">pinned</span>
@@ -382,8 +382,8 @@ export default function MessageList({ initialMessages }) {
                             </div>
                             {message.comments > 0 && (
                                 Array.isArray(message.commentsContent) && message.commentsContent.map((c) => (
-                                    <div key={c["id"]} className={`h-full break-word wrap-normal mx-10 h-10 border border-dashed border-2 ${subBorderColors[message.boardId]} mt-1 text-xs p-3 hover:bg-gray-950`}>
-                                        <span className='font-bold text-gray-600 leading-none'>wbn</span>
+                                    <div key={c["id"]} className={`h-full break-word wrap-normal mx-10 h-10 border border-2 ${subBorderColors[message.boardId]} mt-1 text-xs p-3 hover:bg-gray-950`}>
+                                        <span className={`font-bold ${c.author? "text-indigo-300" : "text-gray-600"} leading-none`}>{c.author ? c.author.username : "wbn"}</span>
                                         <span className={`text-xs font-bold leading-none px-2 ${textColors[message.boardId]}`}>{`N. ${c["id"]}`}</span>
                                         <p className='mb-2 text-gray-400'><MarkdownRenderer text={c["content"]} boardId={message.boardId} /></p>
                                         <span className='text-gray-600 leading-none'>

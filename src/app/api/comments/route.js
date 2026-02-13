@@ -26,6 +26,13 @@ export async function GET(request) {
             where: {
                 messageId: Number(messageId)
             },
+            include: {
+                author: {
+                    select: {
+                        username: true, 
+                    },
+                }
+            },
             orderBy: {
                 date: 'asc'
             },
@@ -68,11 +75,13 @@ export async function POST(request) {
     try {
         const csrfCookie = request.cookies.get('csrfToken')?.value
         const csrfHeader = request.headers.get('X-CSRF-Token')
+        const token = request.cookies.get('auth_token')?.value
 
         if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
             return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
         }
 
+        const decoded = verifyToken(token)
         const sage = request.headers.get('sage') === 'true'
 
         const cookieHeader = request.headers.get('cookie') || ''
@@ -89,7 +98,7 @@ export async function POST(request) {
         }
 
         const { content, messageId, parentId, boardId } = await request.json()
-
+        console.log(boardId)
         if (!sage) {
             await prisma.message.update({
                 where: {
@@ -113,6 +122,7 @@ export async function POST(request) {
                 content,
                 messageId: Number(messageId),
                 userId: user,
+                authorId: decoded ? decoded.userId : null,
                 secretKey: secretKey,
                 parentId: parentId ? Number(parentId) : null,
                 isOP: isOP

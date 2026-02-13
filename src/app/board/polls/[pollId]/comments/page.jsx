@@ -1,5 +1,5 @@
 import { cookies } from "next/headers"
-import PollCommentsList from "@/app/components/PollCommentsList"
+import PollCommentsList from "@/app/components/display/PollCommentsList"
 import { prisma } from "@/libs/prisma"
 
 async function getCommentsByPollId({ id }) {
@@ -99,7 +99,7 @@ export default async function PollsComments({ params, searchParams }) {
         <section>
             <div className=" flex flex-col items-center w-full h-full pb-20">
 
-                <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border border-dotted border-4 border-gray-400 mt-20 pb-10 ">
+                <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border border-2 border-gray-400 mt-20 pb-10 ">
 
                     <div className="flex flex-col w-full max-w-3xl p-5 space-y-2">
                         <span className="text-xs font-bold text-gray-500 leading-none px-2">wbn</span>

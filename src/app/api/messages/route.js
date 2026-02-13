@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from '@/libs/prisma'
 import crypto from 'crypto'
+import { verifyToken } from "@/utils/auth";
 
 export async function GET(request) {
     try {
@@ -36,6 +37,11 @@ export async function GET(request) {
                         content: true,
                         date: true,
                     }
+                },
+                author: {
+                    select: {
+                        username: true, 
+                    },
                 },
                 userId: false,
             }
@@ -82,11 +88,15 @@ export async function POST(request) {
     try {
         const csrfCookie = request.cookies.get('csrfToken')?.value
         const csrfHeader = request.headers.get('X-CSRF-Token')
+        const token = request.cookies.get('auth_token')?.value
+
+        
 
         if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
             return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
         }
 
+        const decoded = verifyToken(token)
         const origin = request.headers.get('origin') || 'http://localhost:3000';
 
         const cookieHeader = request.headers.get('cookie') || ''
@@ -108,6 +118,7 @@ export async function POST(request) {
                 content,
                 boardId: boardId,
                 userId: user,
+                authorId: decoded ? decoded.userId : null,
                 secretKey: secretKey,
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 días
             }

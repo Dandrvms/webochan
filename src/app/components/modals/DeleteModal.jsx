@@ -6,7 +6,7 @@ export default function DeleteModal({ isOpen, onClose, onConfirm}) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray/70 backdrop-blur-xs p-4">
-            <div className="border border-gray-700 border-dotted border-4 p-6 w-full max-w-lg shadow-2xl">
+            <div className="border border-gray-700 p-6 w-full max-w-lg shadow-2xl">
                 <h3 className="text-gray-300 font-bold mb-4 text-center">¿Estás seguro de que deseas borrar el mensaje?</h3>
                 <div className="flex justify-center mt-4">
                     

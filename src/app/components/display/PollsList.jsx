@@ -1,10 +1,10 @@
 "use client"
 
-import Loader from "@/app/components/Loader"
+import Loader from "@/app/components/modals/Loader"
 import { useState, useEffect, useCallback } from "react"
-import Poll_Form from "@/app/components/poll_form"
+import Poll_Form from "@/app/components/forms/poll_form"
 import { useRouter } from "next/navigation"
-import MarkdownRenderer from "./MarkDownRenderer"
+import MarkdownRenderer from "@/app/components/engines/MarkDownRenderer"
 import { useBoardData } from "@/app/hooks/useBoardData"
 import { useForm } from "@/app/hooks/useForm"
 
@@ -206,7 +206,7 @@ export default function PollsList({ initialPolls }) {
             <div className="flex-col flex items-center w-full h-full">
                 <div className="flex flex-col flex-grow w-full max-w-xl pt-10 items-center">
                     {polls && polls.map((poll) => (
-                        <div id={poll.id} key={poll.id} className="md:w-10/8 w-screen border border-b-0 border-dotted border-4  border-pink-600 pb-4">
+                        <div id={poll.id} key={poll.id} className="md:w-10/8 w-screen border border-b-0 border-2  border-pink-600 pb-4">
                             <div className="flex w-full">
                                 <div className="w-full mt-2">
                                     <div>
@@ -289,7 +289,7 @@ export default function PollsList({ initialPolls }) {
                             </div>
                             {poll.comments > 0 && (
                                 Array.isArray(poll.commentsContent) && poll.commentsContent.map((c) => (
-                                    <div key={c["id"]} className="h-full break-word wrap-normal mx-10 h-10 border border-dashed border-2 border-pink-800 mt-1  text-xs p-3 hover:bg-gray-900">
+                                    <div key={c["id"]} className="h-full break-word wrap-normal mx-10 h-10 border border-2 border-pink-800 mt-1  text-xs p-3 hover:bg-gray-900">
                                         <span className='font-bold text-gray-600 leading-none'>wbn</span>
                                         <span className='text-xs font-bold text-pink-300 leading-none px-2'>{`N. ${c["id"]}`}</span>
                                         <p className='mb-2 text-gray-400'><MarkdownRenderer text={c["content"]} boardId={poll.boardId} /></p>

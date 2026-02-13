@@ -1,30 +1,19 @@
 "use client"
 import Link from 'next/link'
 import { useRouter, useSearchParams } from "next/navigation"
-import Text from "@/app/components/text"
-import EditModal from "@/app/components/EditModal"
-import DeleteModal from "@/app/components/DeleteModal"
-import VersionModal from "@/app/components/VersionModal"
+import Text from "@/app/components/forms/text"
+import EditModal from "@/app/components/modals/EditModal"
+import DeleteModal from "@/app/components/modals/DeleteModal"
+import VersionModal from "@/app/components/modals/VersionModal"
 import { useState, useEffect, useCallback } from "react"
-import MarkdownRenderer from './MarkDownRenderer'
+import Loader from "@/app/components/modals/Loader"
+import MarkdownRenderer from '@/app/components/engines/MarkDownRenderer'
 import { useBoardData } from "@/app/hooks/useBoardData"
 import { useForm } from "@/app/hooks/useForm"
 
-export default function CommentList({ initialComments, messageId, boardId }) {
+export default function PollCommentsList({ initialComments, pollId }) {
     const searchParams = useSearchParams()
     const from = searchParams.get('from') || null
-
-    const borderColors = {
-        webo: "border-sky-800",
-        meta: "border-purple-900",
-        test: "border-pink-950"
-    }
-
-    const textColors = {
-        webo: "text-cyan-600",
-        meta: "text-purple-400",
-        test: "text-pink-600"
-    }
 
     useEffect(() => {
         return () => {
@@ -55,7 +44,7 @@ export default function CommentList({ initialComments, messageId, boardId }) {
         replaceTemp,
         removeTemp,
         updateOptimistic
-    } = useBoardData('comments', initialComments, { boardId, messageId })
+    } = useBoardData('comments', initialComments, { boardId: 'polls', messageId: pollId, pollId })
 
     const handleReferenceClick = useCallback((commentId) => {
         const targetElement = document.getElementById(commentId)
@@ -64,9 +53,9 @@ export default function CommentList({ initialComments, messageId, boardId }) {
                 behavior: 'smooth',
                 block: 'center'
             })
-            targetElement.classList.add('bg-gray-950')
+            targetElement.classList.add('bg-pink-950')
             setTimeout(() => {
-                targetElement.classList.remove('bg-gray-950')
+                targetElement.classList.remove('bg-pink-950')
             }, 1000)
         }
     }, [])
@@ -85,10 +74,8 @@ export default function CommentList({ initialComments, messageId, boardId }) {
             .find(row => row.startsWith('csrfToken='))
             ?.split('=')[1]
 
-        const endpoint = boardId === 'polls' ? '/api/poll_comments' : '/api/comments'
         const { sage, ...dataWithoutSage } = commentData
-
-        const res = await fetch(endpoint, {
+        const res = await fetch('/api/poll_comments', {
             method: 'POST',
             body: JSON.stringify(dataWithoutSage),
             headers: {
@@ -103,7 +90,7 @@ export default function CommentList({ initialComments, messageId, boardId }) {
             setTimeout(() => setToast(null), 2500)
         }
         return await res.json()
-    }, [boardId])
+    }, [])
 
     const { handleSubmit: handleCommentSubmit, isSubmitting } = useForm(
         submitComment,
@@ -127,20 +114,15 @@ export default function CommentList({ initialComments, messageId, boardId }) {
         const tempId = addOptimistic({
             content,
             parentId: replyTo,
-            boardId,
+            boardId: 'polls',
             isOP: false
         })
 
         const commentData = {
             content,
-            [boardId === 'polls' ? 'pollId' : 'messageId']: Number(messageId),
+            pollId: Number(pollId),
             sage: isSage
         }
-
-        // if (boardId !== 'polls') {
-        //     commentData.boardId = boardId
-        // }
-
 
         try {
             const result = await handleCommentSubmit(commentData, tempId)
@@ -149,8 +131,7 @@ export default function CommentList({ initialComments, messageId, boardId }) {
             console.error("Error enviando comentario:", error)
             return null
         }
-    }, [addOptimistic, boardId, messageId, handleCommentSubmit])
-
+    }, [addOptimistic, pollId, handleCommentSubmit, handleCommentSubmit])
 
     const updateComment = useCallback(async (id, newContent) => {
         const csrfToken = document.cookie
@@ -158,7 +139,7 @@ export default function CommentList({ initialComments, messageId, boardId }) {
             .find(row => row.startsWith('csrfToken'))
             ?.split("=")[1]
 
-        const res = await fetch(`/api/comments/${id}`, {
+        const res = await fetch(`/api/poll_comments/${id}`, {
             method: 'PUT',
             body: JSON.stringify({
                 content: newContent,
@@ -181,35 +162,32 @@ export default function CommentList({ initialComments, messageId, boardId }) {
     const deleteComment = useCallback(async (id) => {
         // if (!confirm("¿Estás seguro de eliminar este comentario?")) return;
 
-        const csrfToken = document.cookie.split('; ').find(r => r.startsWith('csrfToken='))?.split('=')[1];
+        const csrfToken = document.cookie.split('; ').find(r => r.startsWith('csrfToken='))?.split('=')[1]
 
+        const previousData = [...comments]
+        removeTemp(id)
 
-        const previousData = [...comments];
-        removeTemp(id);
-
-        const res = await fetch(`/api/comments/${id}`, {
+        const res = await fetch(`/api/poll_comments/${id}`, {
             method: 'DELETE',
             headers: { 'X-CSRF-Token': csrfToken }
-        });
+        })
 
         if (!res.ok) {
-            setToast("No se pudo eliminar");
-            setData(previousData);
+            setToast("No se pudo eliminar")
+            setData(previousData)
         }
-
         router.refresh()
-    }, [comments, removeTemp, setData]);
+    }, [comments, removeTemp, setData])
 
     const { handleSubmit: handleUpdateSubmit, isSubmitting: isUpdating } = useForm(
         (data) => updateComment(data.id, data.content),
         {
             onSuccess: (updatedItem) => {
-
-                updateOptimistic(updatedItem.id, () => updatedItem);
-                setEditingComment(null);
+                updateOptimistic(updatedItem.id, () => updatedItem)
+                setEditingComment(null)
             }
         }
-    );
+    )
 
 
     useEffect(() => {
@@ -236,11 +214,11 @@ export default function CommentList({ initialComments, messageId, boardId }) {
     return (
         <>
             <Text
+                color="polls"
                 reply={reply}
                 onClearReply={clearReply}
                 onCommentSent={sendCommentOptimistic}
                 onHandleSent={setPendingScrollId}
-                color={boardId}
                 isSubmitting={isSubmitting}
             />
 
@@ -274,11 +252,11 @@ export default function CommentList({ initialComments, messageId, boardId }) {
 
 
             {comments.map(cmt => (
-                <div id={cmt.id} key={cmt.id} className={`flex w-full border mt-1 justify-between border-dashed border-3 space-x-3 ${borderColors[boardId]}`}>
+                <div id={cmt.id} key={cmt.id} className="flex w-full border mt-1 justify-between border-pink-800 border-3 space-x-3">
                     <div>
                         <span className="text-xs font-bold text-gray-500 leading-none px-2"> wbn</span>
                         {cmt.isOP && <span className="text-xs font-bold text-gray-300 leading-none pr-2">OP</span>}
-                        <span className={`text-xs font-bold leading-none ${textColors[boardId]}`}>N. {cmt.id}</span>
+                        <span className="text-xs font-bold text-pink-300 leading-none">N. {cmt.id}</span>
                         <span className="text-xs hover:underline hover:text-blue-300 active:underline active:text-blue-300 text-blue-500 cursor-pointer px-4">
                             {cmt.parentId ? (`R >>> ${cmt.parentId}`) : null}
                         </span>
@@ -287,7 +265,7 @@ export default function CommentList({ initialComments, messageId, boardId }) {
                                 <MarkdownRenderer
                                     text={cmt.content}
                                     onReferenceClick={handleReferenceClick}
-                                    boardId={cmt.boardId}
+                                    boardId={"polls"}
                                     comments={comments}
                                 />
                             </div>
@@ -307,7 +285,6 @@ export default function CommentList({ initialComments, messageId, boardId }) {
                                 className="text-xs hover:underline text-gray-500 active:text-gray-300 active:underline leading-none px-2 cursor-pointer">
                                 editado
                             </span>
-
                         )}
                     </div>
                     <div className="flex items-center space-x-2">
@@ -358,12 +335,12 @@ export default function CommentList({ initialComments, messageId, boardId }) {
                 </div>
             ))}
 
-            {/* <div className={`max-w-3xl mx-auto border-t my-5 ${borderColors[boardId]}`}>
+            {/* <div className="max-w-3xl mx-auto border-t border-pink-300 my-5">
                 <div className="flex justify-center items-center">
-                    <a className={`border px-2 ${textColors[boardId]} ${borderColors[boardId]}`} href="/">home</a>
-                    <a className={`border px-2 ${textColors[boardId]} ${borderColors[boardId]}`} href="/board/webo">webo</a>
-                    <a className={`border px-2 ${textColors[boardId]} ${borderColors[boardId]}`} href="/board/meta">meta</a>
-                    <a className={`border px-2 ${textColors[boardId]} ${borderColors[boardId]}`} href="/board/polls">polls</a>
+                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/">home</a>
+                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/webo">webo</a>
+                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/meta">meta</a>
+                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/polls">polls</a>
                 </div>
             </div> */}
         </>

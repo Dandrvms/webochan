@@ -10,7 +10,7 @@ export default function EditModal({ isOpen, onClose, initialContent, onSave, isS
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray/70 backdrop-blur-xs p-4">
-            <div className="border border-gray-600 border-dotted border-4 p-6 w-full max-w-lg shadow-2xl">
+            <div className=" border-gray-600 border p-6 w-full max-w-lg shadow-2xl">
                 <h3 className="text-gray-400 font-bold mb-4">Editar mensaje</h3>
                 <textarea
                     autoFocus

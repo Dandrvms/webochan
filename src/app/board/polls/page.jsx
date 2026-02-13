@@ -2,9 +2,7 @@
 
 import { prisma } from "@/libs/prisma"
 import { cookies } from 'next/headers'
-import MessageList from "@/app/components/MessageList"
-// import Navbar from "@/app/components/Navbar"
-import PollsList from "@/app/components/PollsList"
+import PollsList from "@/app/components/display/PollsList"
 
 
 async function getPolls() {

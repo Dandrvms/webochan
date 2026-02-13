@@ -13,91 +13,157 @@ datasource db {
 
 
 model Message{
-  id Int @id @default(autoincrement())
-  content String
-  date DateTime @default(now())
-  edited DateTime @default(now())
-  isEdited Boolean @default(false)
-  versions Versions[] 
-  comments Comment[]
-  userId String @default("")
-  secretKey String @default("")
-  expiresAt DateTime @default(now())
-  lastReply DateTime? 
-  boardId String @default("")
+  id          Int @id @default(autoincrement())
+  content     String
+  date        DateTime @default(now())
+  edited      DateTime @default(now())
+  isEdited    Boolean @default(false)
+  versions    Versions[] 
+  comments    Comment[]
+  userId      String @default("")
+  secretKey   String @default("")
+  expiresAt   DateTime @default(now())
+  lastReply   DateTime? 
+  boardId     String @default("")
+
+  authorId    Int?     
+  author      Users?    @relation(fields: [authorId], references: [id])
  
 }
 
 model Versions{
-  id Int @id @default(autoincrement())
-  content String
-  date DateTime @default(now())
-  messageId Int
-  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  id          Int @id @default(autoincrement())
+  content     String
+  date        DateTime @default(now())
+  messageId   Int
+  message     Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }
 
 model Comment{
-  id Int @id @default(autoincrement())
-  userId String @default("")
-  secretKey String @default("")
-  content String
-  date DateTime @default(now())
-  edited DateTime @default(now())
-  isEdited Boolean @default(false)
-  versions Comment_Versions[]
-  messageId Int?
-  message Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
-  isOP Boolean @default(false)
+  id          Int @id @default(autoincrement())
+  userId      String @default("")
+  secretKey   String @default("")
+  content     String
+  date        DateTime @default(now())
+  edited      DateTime @default(now())
+  isEdited    Boolean @default(false)
+  versions    Comment_Versions[]
+  messageId   Int?
+  message     Message? @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  isOP        Boolean @default(false)
 
 
-  poll Poll? @relation(fields: [pollId], references: [id], onDelete: Cascade)
-  pollId Int?
+  poll        Poll? @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  pollId      Int?
   
   
   
-  parentId Int?
-  parent Comment? @relation("Replies", fields: [parentId], references: [id])
-  replies Comment[] @relation("Replies")
+  parentId    Int?
+  parent      Comment? @relation("Replies", fields: [parentId], references: [id])
+  replies     Comment[] @relation("Replies")
+
+  authorId    Int?     
+  author      Users?    @relation(fields: [authorId], references: [id])
 }
 
 model Comment_Versions{
-  id Int @id @default(autoincrement())
-  content String
-  date DateTime @default(now())
-  commentId Int
-  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  id          Int @id @default(autoincrement())
+  content     String
+  date        DateTime @default(now())
+  commentId   Int
+  comment     Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
 }
 
 model Poll {
-  id Int @id @default(autoincrement())
-  question String
-  options Poll_Options[]
-  votes Poll_Votes[]
-  closed Boolean @default(false)
-  createdAt DateTime @default(now())
-  expiresAt DateTime?
-  userId String @default("")
-  secretKey String @default("")
-  boardId String @default("")
-  comments Comment[]
-  lastReply DateTime?
+  id          Int @id @default(autoincrement())
+  question    String
+  options     Poll_Options[]
+  votes       Poll_Votes[]
+  closed      Boolean @default(false)
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime?
+  userId      String @default("")
+  secretKey   String @default("")
+  boardId     String @default("")
+  comments    Comment[]
+  lastReply   DateTime?
 }
 
 model Poll_Options {
-  id Int @id @default(autoincrement())
-  option String
-  pollId Int
-  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
-  votes Poll_Votes[]
+  id          Int @id @default(autoincrement())
+  option      String
+  pollId      Int
+  poll        Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes       Poll_Votes[]
 }
 
 model Poll_Votes {
-  id Int @id @default(autoincrement())
-  userId String @default("")
-  pollId Int
-  optionId Int
-  option Poll_Options @relation(fields: [optionId], references: [id], onDelete: Cascade)
-  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  id          Int @id @default(autoincrement())
+  userId      String @default("")
+  pollId      Int
+  optionId    Int
+  option      Poll_Options @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  poll        Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
 
   @@unique([pollId, userId], name: "unique_poll_vote")
 }
+
+model Users {
+  id          Int @id @default(autoincrement())
+  username    String    @unique 
+  hashedPword String
+  level       Level     @default(NONE)
+  
+  messages    Message[]
+  comments    Comment[]
+  
+  createdAt   DateTime  @default(now())
+}
+
+enum Level {
+  ADMIN
+  NONE
+}
+
+
+
+model FSNode {
+  id          Int       @id @default(autoincrement())
+  name        String
+  type        FSNodeType
+
+  parentId    Int?
+  parent      FSNode?   @relation("FS_Tree", fields: [parentId], references: [id])
+  children    FSNode[]  @relation("FS_Tree")
+
+  content     String?   // files
+  size        Int       @default(0)
+
+  permissions Int       @default(644) 
+  owner       String    @default("system") // anon | root | system
+
+  readonly    Boolean   @default(false)
+  hidden      Boolean   @default(false)
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  
+  boardId     String?   
+  messageId   Int?      
+}
+
+enum FSNodeType {
+  FILE
+  DIR
+}
+
+model Session {
+  id          Int      @id @default(autoincrement())
+  sessionId   String   @unique
+  user        String   // "anon" | "root"
+  cwdNodeId   Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

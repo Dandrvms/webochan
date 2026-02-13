@@ -14,10 +14,13 @@ export async function POST(request) {
   // }
 
   const { id, content, postId, boardId } = await request.json()
-
-  const res = await fetch(`${process.env.BOT_URL}/api/track`, {
+  console.log(boardId)
+  const res = await fetch(`${process.env.BOT_URL}/api/notify/comment`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { 
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.BOT_TOKEN}`
+    },
     body: JSON.stringify({
       id,
       content,

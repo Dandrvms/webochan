@@ -1,36 +1,53 @@
 import { cookies } from "next/headers"
-import CommentList from "@/app/components/CommentList"
+import CommentList from "@/app/components/display/CommentList"
 import { prisma } from "@/libs/prisma"
-import MarkdownRenderer from "@/app/components/MarkDownRenderer"
+import MarkdownRenderer from "@/app/components/engines/MarkDownRenderer"
 
 async function getCommentsByMessageId({ id }) {
 
-    try{
+    try {
         const comments = await prisma.comment.findMany({
-        where: {
-            messageId: Number(id)
-        },
-        orderBy: {
-            date: 'asc'
-        },
-        include: {
-            _count: { select: { replies: true } }
-        }
-    })
-    return comments
+            where: {
+                messageId: Number(id)
+            },
+            orderBy: {
+                date: 'asc'
+            },
+            include: {
+                _count: { select: { replies: true } }
+                ,
+                author: {
+                    select: {
+                        username: true,
+                    },
+                },
+            }
+        })
+        return comments
     } catch (error) {
         return null
     }
 }
 
-async function getMessageById({ id }) {
+async function getMessageById({ id, boardId }) {
     try {
         const message = await prisma.message.findUnique({
             where: {
                 id: Number(id)
+            },
+            include: {
+                author: {
+                    select: {
+                        username: true,
+                    },
+                },
             }
         })
-        return message
+        if (boardId === message.boardId) {
+            return message
+        } else {
+            return null
+        }
     } catch (error) {
         return null
     }
@@ -41,10 +58,26 @@ export const dynamic = 'force-dynamic'
 
 export default async function Comments({ params, searchParams }) {
 
+    const { messageId, boardId } = await params
+    const boards = ["webo", "meta", "test"]
 
-    const { messageId } = await params
+    if (!boards.includes(boardId)) {
+        return (
+            <div className=" flex-col flex items-center w-full h-full pt-10">
+                <div className="flex flex-col flex-grow w-full max-w-xl  border-gray-800 rounded-full items-center p-5 ">
+
+                    <div className=" text-center flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-dotted border-4 border-gray-400 mt-20 p-10 ">
+                        <p className="text-2xl font-bold text-gray-500 leading-none">Tablón no encontrado</p>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+
+
     const id = messageId
-    const message = await getMessageById({ id })
+    const message = await getMessageById({ id, boardId })
 
     if (!message) {
         return (
@@ -61,8 +94,8 @@ export default async function Comments({ params, searchParams }) {
 
     const comments = await getCommentsByMessageId({ id })
 
-    if (!comments){
-         return (
+    if (!comments) {
+        return (
             <section>
                 <div className="flex flex-col items-center w-full h-full pb-20">
                     <div className=" text-center flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-dotted border-4 border-gray-400 mt-20 pb-10 ">
@@ -92,10 +125,10 @@ export default async function Comments({ params, searchParams }) {
 
             <div className=" flex flex-col items-center w-full h-full pb-20">
 
-                <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-dotted border-4 border-gray-400 mt-20 pb-10 ">
+                <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-2 border-gray-400 mt-20 pb-10 ">
 
                     <div className="w-full h-full mt-5 p-5 mb-4 border-b border-gray-700">
-                        <span className="text-gray-400 font-bold">wbn</span>
+                        <span className={`${message.author ? "text-indigo-300" : "text-gray-400"} font-bold`}>{message.author? message.author.username : "wbn"}</span>
                         <span className="text-cyan-300 font-bold px-2">N. {message.id}</span>
                         <div className="mb-10 flex break-word wrap-normal whitespace-pre-line justify-between text-gray-300 ">
                             <div><MarkdownRenderer text={message.content} /></div>
@@ -112,7 +145,7 @@ export default async function Comments({ params, searchParams }) {
                             </div>
                         ) : null}
 
-                    <CommentList initialComments={commentsWithFlags} replyTo={(await searchParams)?.replyTo} messageId={id} boardId={message.boardId} />
+                    <CommentList initialComments={commentsWithFlags} replyTo={(await searchParams)?.replyTo} messageId={id} boardId={boardId} />
 
 
 

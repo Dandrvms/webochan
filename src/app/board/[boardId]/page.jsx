@@ -2,7 +2,7 @@
 
 import { prisma } from "@/libs/prisma"
 import { cookies } from 'next/headers'
-import MessageList from "@/app/components/MessageList"
+import MessageList from "@/app/components/display/MessageList"
 // import Navbar from "@/app/components/Navbar"
 
 async function getMessagesByBoard(boardId) {
@@ -19,7 +19,12 @@ async function getMessagesByBoard(boardId) {
                 , comments: {
                     take: 3,
                     orderBy: { date: 'desc' },
-                    include: { userId: false, secretKey: false }
+                    include: { userId: false, secretKey: false, author: {select: { username: true } } }
+                },
+                author: {
+                    select: {
+                        username: true, 
+                    },
                 },
                 userId: false,
             }
