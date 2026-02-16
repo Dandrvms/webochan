@@ -1,6 +1,15 @@
 # WeboChan - Tablón de Mensajes y Encuestas
 
-![webochan-ascii](https://github.com/user-attachments/assets/46a8eb8f-08cc-4979-aa0c-4a595cbc622e)
+<pre>
+ /$$      /$$           /$$                  /$$$$$$  /$$                          
+| $$  /$ | $$          | $$                 /$$__  $$| $$                          
+| $$ /$$$| $$  /$$$$$$ | $$$$$$$   /$$$$$$ | $$  \__/| $$$$$$$   /$$$$$$  /$$$$$$$ 
+| $$/$$ $$ $$ /$$__  $$| $$__  $$ /$$__  $$| $$      | $$__  $$ |____  $$| $$__  $$
+| $$$$_  $$$$| $$$$$$$$| $$  \ $$| $$  \ $$| $$      | $$  \ $$  /$$$$$$$| $$  \ $$
+| $$$/ \  $$$| $$_____/| $$  | $$| $$  | $$| $$    $$| $$  | $$ /$$__  $$| $$  | $$
+| $$/   \  $$|  $$$$$$$| $$$$$$$/|  $$$$$$/|  $$$$$$/| $$  | $$|  $$$$$$$| $$  | $$
+|__/     \__/ \_______/|_______/  \______/  \______/ |__/  |__/ \_______/|__/  |__/
+</pre>
 
 
 Bienvenido a [WeboChan](https://webochan.vercel.app), el tablón de mensajes anónimos y encuestas para la comunidad Webo.
@@ -27,20 +36,74 @@ Instalar dependencias y ejecutar
 
 ## Estructura del Proyecto
 
-### src/ app/ components/ - Componentes React reutilizables ...
+```
+src
+├───app
+│   ├───api 			            # api routes
+│   │   ├───auth	
+│   │   │   ├───webin		
+│   │   │   └───webout
+│   │   ├───bot			          # bot entry
+│   │   │   ├───comment
+│   │   │   ├───delete
+│   │   │   ├───edit
+│   │   │   ├───getposts
+│   │   │   ├───notify
+│   │   │   │   ├───comments
+│   │   │   │   ├───polls
+│   │   │   │   └───posts
+│   │   │   │       └───[id]
+│   │   │   ├───post
+│   │   │   └───scrape
+│   │   │       ├───board
+│   │   │       │   └───[boardId]
+│   │   │       └───post
+│   │   │           └───[id]
+│   │   ├───comments
+│   │   │   └───[id]
+│   │   ├───comment_versions
+│   │   │   └───[id]
+│   │   ├───csrf-token
+│   │   ├───fs
+│   │   │   ├───execute
+│   │   │   └───write
+│   │   ├───messages
+│   │   │   └───[id]
+│   │   ├───polls
+│   │   │   ├───votes
+│   │   │   └───[id]
+│   │   ├───poll_comments
+│   │   │   └───[id]
+│   │   ├───test
+│   │   └───versions
+│   │       └───[id]
+│   ├───board			            # generic board structure
+│   │   ├───polls
+│   │   │   └───[pollId]
+│   │   │       └───comments
+│   │   └───[boardId]
+│   │       └───[messageId]
+│   │           └───comments
+│   ├───bot			# bot section
+│   ├───components		        # react components
+│   │   ├───display
+│   │   ├───engines
+│   │   ├───forms
+│   │   ├───modals
+│   │   └───session
+│   ├───faq			              # faq section
+│   ├───fs			              # fs render
+│   └───hooks
+├───generated
+│   └───prisma
+│       └───runtime
+├───libs
+│   └───fs			              # fs backend
+│       └───commands
+├───scripts
+└───utils
 
-### api/ - Endpoints API (Next.js) ...
-
-### board/ - Páginas de tablones y encuestas ... 
-
-### libs/ prisma.js - Configuración de Prisma Client ...
-
-### prisma/ schema.prisma - Esquema de la base de datos ...
-
-
-────────────────────────────
-
-
+```
 
 
 

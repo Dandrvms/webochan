@@ -3,8 +3,24 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from 'next/navigation'
 import WebinModal from "@/app/components/modals/WebinModal"
+import Editor from "../components/display/Editor";
+import Screen from "../components/display/Screen";
 
 export default function Terminal() {
+
+
+
+
+    const theme = {
+        promptUser: "text-green-400",
+        promptPath: "text-blue-400",
+        command: "text-amber-200",
+        error: "text-red-400",
+        output: "text-gray-300",
+        system: "text-gray-400"
+    };
+
+
     const [lines, setLines] = useState([]);
     const [input, setInput] = useState("");
     const [cwd, setCwd] = useState("/fs");
@@ -17,12 +33,13 @@ export default function Terminal() {
     const [webin, setWebin] = useState(false)
     const hasBooted = useRef(false);
 
-    const [mode, setMode] = useState("NORMAL"); // NORMAL | WRITE
-
+    const [mode, setMode] = useState("NORMAL"); // NORMAL | EDITOR
+    const [access, setAccess] = useState("") //WRITE | READ
     const [editorFile, setEditorFile] = useState(null);
     const [editorContent, setEditorContent] = useState("");
+    const [fileId, setFileId] = useState(null)
 
-
+    const [screenData, setScreenData] = useState(null);
 
     const router = useRouter()
 
@@ -50,11 +67,26 @@ export default function Terminal() {
         setIsPending(true)
 
         const command = input;
-        const prompt = `${user}@webochan:~${cwd}$ ${command}`;
+
+        if (command === "clear") {
+            setInput("")
+            setLines([]);
+            setHistory(prev => [...prev, command]);
+            setHistoryIndex(null);
+            setIsPending(false);
+            return;
+        }
+
+
 
         setLines(prev => [
             ...prev,
-            { type: "prompt", text: prompt },
+            {
+                type: "prompt",
+                user,
+                cwd,
+                command
+            },
             { type: "pending", text: "" }
         ]);
 
@@ -74,7 +106,29 @@ export default function Terminal() {
                     body: JSON.stringify({ input: command }),
                 });
 
-                const data = await res.json();
+                const data = await res.json()
+                console.log("COMMAND:", command)
+                console.log("FS RESPONSE:", data);
+
+                if (data.mode === "EDITOR") {
+
+                    setLines(prev => prev.slice(0, -1));
+
+                    setMode(data.mode)
+                    setAccess(data.access)
+                    setEditorFile(data.file.name)
+                    setEditorContent(data.file.content)
+                    setFileId(data.file.id)
+                    return
+                }
+
+                if (data.mode === "SCREEN") {
+                    setMode(data.mode)
+                    setScreenData(data.screen.sections)
+                    return
+                }
+
+
 
                 if (command === 'login') {
                     setWebin(true)
@@ -88,9 +142,11 @@ export default function Terminal() {
                     if (!data.ok) {
                         return [
                             ...withoutPending,
-                            { type: "output", text: data.error }
+                            { type: "error", text: data.error, hint: data.hint }
                         ];
                     }
+
+
 
                     return [
                         ...withoutPending,
@@ -106,7 +162,7 @@ export default function Terminal() {
             } catch {
                 setLines(prev => [
                     ...prev.slice(0, -1),
-                    { type: "output", text: "error: connection failed" }
+                    { type: "error", text: "error: connection failed" }
                 ]);
             } finally {
                 setIsPending(false)
@@ -124,13 +180,23 @@ export default function Terminal() {
         setTimeout(() => router.push("/"), 2500)
     }
 
+   
+
     function handleKeyDown(e) {
+
+
+
         if (e.ctrlKey && e.key == 'c') {
             setIsPending(true)
             e.preventDefault()
             setLines(prev => [
                 ...prev,
-                { type: "prompt", text: `${user}@webochan:~${cwd}$ ^C` },
+                {
+                    type: "prompt",
+                    user,
+                    cwd,
+                    command: "^C",
+                }
             ]);
 
             handleExit()
@@ -167,45 +233,66 @@ export default function Terminal() {
                 return newIndex
             })
         }
+
+        if (e.key === "Tab") {
+            e.preventDefault()
+        }
+    }
+
+    function handleQuit() {
+        setMode("NORMAL")
+        setAccess("")
+        setEditorFile(null)
+        setEditorContent("")
+        setFileId(null)
+    }
+
+    async function handleSave() {
+        await fetch("/api/fs/write", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                id: fileId,
+                content: editorContent
+            })
+        });
+
+        setMode("NORMAL");
+        setAccess("")
+        setEditorFile(null)
+        setEditorContent("")
+        setFileId(null)
+
     }
 
 
+    const bootLines = [
+        "webochan fs v0.1",
+        "kernel loaded.",
+        "",
+        "",
+        "type 'help' for available commands.",
+        ""
+    ];
+
+    const [bootIndex, setBootIndex] = useState(0);
     useEffect(() => {
-        if (hasBooted.current) return;
-        hasBooted.current = true;
-
-        const bootLines = [
-            "webochan fs v0.1",
-            "kernel loaded.",
-            "kernel loaded.",
-            "type 'help' for available commands.",
-            ""
-        ];
-
-        let i = 0;
-        let timer
-
-        function nextLine() {
-            if (i >= bootLines.length) {
-                setBooting(false);
-                return;
-            }
-
-            setLines(prev => [
-                ...prev,
-                { type: "system", text: bootLines[i] }
-            ]);
-
-            i++;
-            timer = setTimeout(nextLine, 400); // velocidad del boot
+        if (bootIndex >= bootLines.length) {
+            setBooting(false);
+            return;
         }
 
-        nextLine();
+        const timer = setTimeout(() => {
+            setLines(prev => [
+                ...prev,
+                { type: "system", text: bootLines[bootIndex] }
+            ]);
+            setBootIndex(i => i + 1);
+        }, 400);
 
-        return () => {
-            if (timer) clearTimeout(timer);
-        };
-    }, []);
+        return () => clearTimeout(timer);
+    }, [bootIndex]);
+
 
     useEffect(() => {
         async function initSession() {
@@ -259,6 +346,24 @@ export default function Terminal() {
     }
 
 
+
+    useEffect(() => {
+        function handleGlobalKey(e) {
+            if (mode === "SCREEN") {
+                if (e.key === "q" || e.key === "Escape") {
+                    e.preventDefault()
+                    setMode("NORMAL");
+                    setInput("")
+                }
+            }
+        }
+
+        window.addEventListener("keydown", handleGlobalKey);
+        return () => window.removeEventListener("keydown", handleGlobalKey);
+    }, [mode]);
+
+
+
     return (
         <>
             <WebinModal
@@ -274,38 +379,109 @@ export default function Terminal() {
                 }}
             />
 
-            <div
-                ref={containerRef}
-                className="h-full overflow-y-auto bg-black text-green-400 font-mono p-3"
-                onClick={() => inputRef.current?.focus()}
-            >
 
-                {lines.map((line, i) => (
-                    <div key={i} className="whitespace-pre-wrap">
-                        {line.text}
-                    </div>
-                ))}
-                {!booting && sessionLoaded && !isPending && (
-                    <form onSubmit={handleSubmit} className="flex">
-                        <span className="mr-2">
-                            {user}@webochan:~{cwd}$
-                        </span>
-                        <input
-                            id={"terminal"}
-                            ref={inputRef}
-                            value={input}
-                            onChange={(e) => {
-                                setInput(e.target.value)
-                                setHistoryIndex(null)
-                            }}
-                            className="bg-transparent outline-none flex-1 [caret-shape:block]"
-                            autoFocus
-                            onKeyDown={handleKeyDown}
-                            autoComplete="off"
+            <div className="my-10 bg-black">
+                <div
+                    ref={containerRef}
+                    className="h-[80vh] overflow-y-auto  font-mono p-5 border no-scrollbar text-gray-400 rounded-md my-10"
+                    onClick={() => inputRef.current?.focus()}
+                >
+                    {mode === "NORMAL" && !booting && sessionLoaded && (
+                        <>
+                            {lines.map((line, i) => {
+                                if (line.type === "prompt") {
+                                    return (
+                                        <div key={i} className="whitespace-pre-wrap">
+                                            <span className={`${theme.promptUser}`}>
+                                                {line.user}@webochan
+                                            </span>
+                                            <span className={`${theme.promptPath}`}>
+                                                :~{line.cwd}
+                                            </span>
+                                            <span className="text-gray-400">$</span>{" "}
+                                            <span className={`${theme.command}`}>
+                                                {line.command}
+                                            </span>
+                                        </div>
+                                    );
+                                }
 
+
+
+
+                                if (line.type === "error") {
+                                    return (
+                                        <div key={i} className={` whitespace-pre-wrap`}>
+                                            <span className={`${theme.error}`}>{line.text}</span>{"\n"}<span className={`${theme.system}`}>{line.hint}</span>
+                                        </div>
+                                    );
+                                }
+
+                                if (line.type === "system") {
+                                    return (
+                                        <div key={i} className="text-gray-500 whitespace-pre-wrap">
+                                            {line.text}
+                                        </div>
+                                    );
+                                }
+
+
+                                return (
+                                    <div key={i} className="whitespace-pre-wrap text-gray-300">
+                                        {line.text}
+                                    </div>
+                                );
+
+                            })}
+
+
+                            <form onSubmit={handleSubmit} className="flex">
+                                <span className={`${theme.promptUser}`}>
+                                    {user}@webochan
+                                </span>
+                                <span className={`${theme.promptPath}`}>
+                                    :~{cwd}
+                                </span>
+                                <span className="mr-2">
+                                    $
+                                </span>
+                                <input
+                                    id={"terminal"}
+                                    ref={inputRef}
+                                    value={input}
+                                    onChange={(e) => {
+                                        setInput(e.target.value)
+                                        setHistoryIndex(null)
+                                    }}
+                                    className={`bg-transparent ${theme.command} outline-none flex-1 min-w-0 overflow-hidden text-ellipsis [caret-shape:block]`}
+                                    autoFocus
+                                    onKeyDown={handleKeyDown}
+                                    autoComplete="off"
+
+                                />
+                            </form>
+                        </>
+                    )}
+
+
+                    {mode === "EDITOR" && !booting && sessionLoaded && !isPending && (
+                        <Editor
+                            file={editorFile}
+                            access={access}
+                            content={editorContent}
+                            onChange={setEditorContent}
+                            onSave={handleSave}
+                            onQuit={handleQuit}
                         />
-                    </form>
-                )}
+                    )}
+
+
+                    {mode === "SCREEN" && (
+                        <Screen
+                            sections={screenData}
+                        />
+                    )}
+                </div>
             </div>
         </>
     );

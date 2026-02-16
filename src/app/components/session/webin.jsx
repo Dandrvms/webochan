@@ -62,7 +62,7 @@ export default function Webin({onClose, isLogged}) {
                     {toast}
                 </div>
             )}
-            <form onSubmit={onSub} autoFocus autoComplete="off" className="border border-green-700 p-3 w-full max-w-sm">
+            <form onSubmit={onSub} autoFocus autoComplete="off" className="border border-gray-700 p-3 w-full max-w-sm">
                 <div className="">
                     <div className="mb-4">
                         <div className="flex">
@@ -72,14 +72,14 @@ export default function Webin({onClose, isLogged}) {
                             
                             >✕</button>
                         </div>
-                        <label className="block text-green-400 mb-2 text-center">Hola, demuestra que eres admin.</label>
+                        <label className="block text-gray-400 mb-2 text-center">Hola, demuestra que eres admin.</label>
                         <div className="flex">
-                            <label className="text-gray-400 font-extrabold mt-2 mr-1 text-green-400" >{"~/user$"}</label>
+                            <label className="text-gray-400 font-extrabold mt-2 mr-1" >{"~/user$"}</label>
                             <input
                                 type="text"
                                 // id="question"
                                 // name="question"
-                                className="w-full py-2 outline-none text-green-400 [caret-shape:block] caret-green-400"
+                                className="w-full py-2 outline-none text-gray-400 [caret-shape:block] caret-gray-400"
                                 value={username}
                                 required
                                 autoComplete="off"
@@ -93,12 +93,12 @@ export default function Webin({onClose, isLogged}) {
                         </div>
 
                         <div className="flex">
-                            <label className="text-green-400 font-extrabold mt-2 mr-1" >{"~/user/pass$"}</label>
+                            <label className="text-gray-400 font-extrabold mt-2 mr-1" >{"~/user/pass$"}</label>
                             <input
                                 type="password"
                                 // id="question"
                                 // name="question"
-                                className="w-full py-2 outline-none text-green-400 [caret-shape:block] caret-green-400"
+                                className="w-full py-2 outline-none text-gray-400 [caret-shape:block] caret-gray-400"
                                 value={password}
                                 required
                                 autoComplete="off"
@@ -114,7 +114,7 @@ export default function Webin({onClose, isLogged}) {
                 <div className="flex justify-center">
                     <button
                         type="submit"
-                        className="text-green-400 py-2 px-2 cursor-pointer align-left hover:bg-white hover:text-black active:text-black active:bg-white"
+                        className="text-gray-400 py-2 px-2 cursor-pointer align-left hover:bg-white hover:text-black active:text-black active:bg-white"
                         disabled={isSubmitting}
                     >
                         ok

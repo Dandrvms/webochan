@@ -6,7 +6,9 @@ import { echo } from "./commands/echo"
 import { cat } from "./commands/cat"
 import { touch } from "./commands/touch"
 import { login } from "./commands/login"
-import { write } from "./commands/write"
+import { we } from "./commands/we"
+import { chmod } from "./commands/chmod";
+import { fetch } from "./commands/fetch";
 
 const commands = {
   ls,
@@ -17,7 +19,9 @@ const commands = {
   cat,
   touch,
   login,
-  write
+  we,
+  chmod,
+  fetch
 };
 
 export async function executeCommand(
@@ -26,7 +30,7 @@ export async function executeCommand(
 ) {
   const handler = commands[cmd.name];
   if (!handler) {
-    throw new Error(`command not found: ${cmd.name}`);
+    return {error: `error: command not found: ${cmd.name}`};
   }
 
   return handler(cmd, session);

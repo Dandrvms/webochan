@@ -33,6 +33,7 @@ export async function echo(cmd, session) {
         type: "FILE",
         parentId: session.cwdNodeId,
         content: text,
+        permissions: 755
       },
     });
   } else {

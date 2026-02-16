@@ -1,6 +1,6 @@
 import Link from "next/link";
 // import Navbar from "@/app/components/Navbar";
-
+import { webochanAscii } from "@/libs/fs/ascii";
 export default function Homepage() {
   return (
     <>
@@ -10,13 +10,13 @@ export default function Homepage() {
         {/* Hero Section */}
         <div className="text-center pt-8 px-4">
           <div className="max-w-3xl mx-auto">
-            <div className="inline-flex items-center justify-center  px-4 py-2 ">
+            <div className="inline-flex items-center justify-center  px-4 ">
               {/* <svg className="w-5 h-5 mr-2 text-blue-400" viewBox="0 0 24 24" fill="none">
                 <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
                 <path d="M12 8V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 <path d="M12 16H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
               </svg> */}
-              <span className="text-white text-md">Bienvenid@ a</span>
+              <span className="text-gray-500 text-md">Conected to</span>
             </div>
 
             {/* <h1 className="text-4xl md:text-6xl font-bold mb-2 ">
@@ -25,7 +25,12 @@ export default function Homepage() {
               </span>
             </h1> */}
 
-            <img src="/img/photo_2026-01-19_19-58-24.jpg" alt="Webochan"></img>
+            {/* <img src="/img/photo_2026-01-19_19-58-24.jpg" alt="Webochan"></img> */}
+            <pre role="img" aria-label="Webochan ascii" className="text-teal-200 leading-none text-[7px] md:text-[10px] overflow-x-auto no-scrollbar">
+
+              {webochanAscii}
+
+            </pre>
 
             {/* <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               Comunícate de forma anónima con la comunidad Webo
@@ -34,7 +39,7 @@ export default function Homepage() {
         </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 max-w-4xl">
+        <div className="container mx-auto px-4 max-w-4xl border rounded-md">
           {/* Info Card */}
 
 
@@ -46,8 +51,8 @@ export default function Homepage() {
               </legend>
               <div className="md:grid-cols-2 gap-6">
                 {/* /webo/ Board */}
-                <Link href="/board/webo">
-                  <div className="group py-2 px-6 cursor-pointer hover:bg-white active:bg-white">
+                <Link href="/board/webo" className="cursor-default">
+                  <div className="group py-2 px-6  hover:bg-gray-300 active:bg-white">
                     <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-cyan-400 group-hover:text-black">webo</span> - para webiar</p>
                     <div className="flex items-center text-gray-500 text-sm">
                       {/* <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
@@ -60,8 +65,8 @@ export default function Homepage() {
                 </Link>
 
                 {/* /meta/ Board */}
-                <Link href="/board/meta">
-                  <div className="group py-2 px-6 cursor-pointer hover:bg-white active:bg-white">
+                <Link href="/board/meta" className="cursor-default">
+                  <div className="group py-2 px-6  hover:bg-gray-300 active:bg-white">
                     <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-purple-400 group-hover:text-black">meta</span> - sugerencias y bugs</p>
                     <div className="flex items-center text-gray-500 text-sm">
                       {/* <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
@@ -73,8 +78,8 @@ export default function Homepage() {
                 </Link>
 
                 {/* /polls/ Board */}
-                <Link href="board/polls">
-                  <div className="group py-2 px-6 cursor-pointer hover:bg-white active:bg-white">
+                <Link href="board/polls" className="cursor-default">
+                  <div className="group py-2 px-6  hover:bg-gray-300 active:bg-white">
                     <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-pink-400 group-hover:text-black">polls</span> - encuestas</p>
                     <div className="flex items-center text-gray-500 text-sm">
                       {/* <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
@@ -85,8 +90,8 @@ export default function Homepage() {
                   </div>
                 </Link>
 
-                <Link href="/bot">
-                  <div className="group py-2 px-6 cursor-pointer hover:bg-white active:bg-white">
+                <Link href="/bot" className="cursor-default">
+                  <div className="group py-2 px-6  hover:bg-gray-300 active:bg-white">
                     <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-teal-400 group-hover:text-black">bot</span> - telegram</p>
                     <div className="flex items-center text-gray-500 text-sm">
                       {/* <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
@@ -100,45 +105,50 @@ export default function Homepage() {
             </fieldset>
           </div>
 
-         
-            <fieldset className="border border-dotted border-4 border-gray-300 p-4 rounded-md">
-              <legend className="text-sm font-semibold px-2 ml-4 text-gray-400">
-                Info
-              </legend>
-              <div className="flex items-start">
-                {/* <svg className="w-6 h-6 text-blue-400 mr-3 mt-1 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+
+          <fieldset className="border  border-gray-300 p-4 rounded-md">
+            <legend className="text-sm font-semibold px-2 ml-4 text-gray-400">
+              Info
+            </legend>
+            <div className="flex items-start">
+              {/* <svg className="w-6 h-6 text-blue-400 mr-3 mt-1 flex-shrink-0" viewBox="0 0 24 24" fill="none">
                 <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="2" />
                 <path d="M12 8V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 <path d="M12 16H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg> */}
-                <div>
-                  <p className="mb-4 text-gray-300">
-                    Webochan es el tablón de mensajes anónimos oficial de{" "}
-                    <a
-                      href="https://t.me/encuestaswebo"
-                      className="underline hover:text-black hover:bg-white active:bg-white active:text-black"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      webo
-                    </a>. Por ahora el formato es de solo texto. Anímate a crear hilos, hacer encuestas y decir cosas. Aceptamos sugerencias de todos los usuarios.
-                  </p>
+              <div>
+                <p className="mb-4 text-gray-300">
+                  Textboard anónimo de la comunidad webo.
+                  Publica, responde y observa sin identidad persistente.
+                  Los usuarios son identificadores temporales.
+                  El contenido es lo único que permanece.</p>
+
+                <p>
                   <a
-                    href="https://t.me/webochanlog"
-                    className="inline-flex items-center text-lime-500 hover:text-black hover:bg-white active:bg-white active:text-black transition-colors"
+                    href="https://t.me/encuestaswebo"
+                    className="text-sky-400 cursor-default hover:text-black hover:bg-gray-300 active:bg-white active:text-black"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <span className="font-extrabold">{">"}</span>Changelog
+                    {">"}Canal Webo
                   </a>
-                </div>
+                </p>
+                <a
+                  href="https://t.me/webochanlog"
+                  className="cursor-default inline-flex items-center text-lime-500 hover:text-black hover:bg-gray-300 active:bg-white active:text-black transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="font-extrabold">{">"}</span>Changelog
+                </a>
               </div>
-            </fieldset>
-         
+            </div>
+          </fieldset>
+
 
           {/* Features Section */}
-          <div className="border-t border-gray-800 pt-12 pb-8">
-            <h2 className="text-2xl font-bold mb-8 text-center">Encuentra lo que buscas</h2>
+          <div className="border-t border-gray-800 pt-8 pb-8">
+            {/* <h2 className="text-2xl font-bold mb-8 text-center">Encuentra lo que buscas</h2> */}
             <div className=" md:grid-cols-3 gap-6">
               {/* <div className="bg-gray-800/30 rounded-xl p-5 text-center transition-transform hover:scale-[1.02]">
                 <div className="bg-blue-900/20 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -165,8 +175,8 @@ export default function Homepage() {
                 <p className="text-gray-400 text-sm">Conecta con otros miembros</p>
               </div>
               </Link> */}
-              <Link href="/faq">
-                <div className="group p-5 text-center hover:bg-white active:bg-white">
+              <Link href="/faq" className="cursor-default">
+                <div className="group p-5 text-center hover:bg-gray-300 active:bg-white">
                   {/* <div className="bg-cyan-900/20 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg className="w-6 h-6 text-cyan-400" viewBox="0 0 24 24" fill="none">
                       <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -184,10 +194,11 @@ export default function Homepage() {
           </div>
 
           {/* Footer */}
-          <footer className="text-center py-8 text-gray-500 text-sm border-t border-gray-800 mt-12">
-            <p>Webochan © {new Date().getFullYear()} - Comunidad Webo</p>
-          </footer>
+
         </div>
+        <footer className="text-center py-8 text-gray-500 text-sm  border-gray-800 mt-12">
+          <p>Webochan © 2025 - {new Date().getFullYear()} • Comunidad Webo</p>
+        </footer>
       </div>
     </>
   );

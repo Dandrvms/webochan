@@ -40,7 +40,8 @@ export async function touch(cmd, session) {
                 name,
                 type: "FILE",
                 parentId: session.cwdNodeId,
-                content: ""
+                content: "",
+                permissions: 755
             },
         });
     }

@@ -31,7 +31,7 @@ export default function Webout({onClose, Logout}) {
                     {toast}
                 </div>
             )}
-            <div className="border border-green-700 px-6 py-3 shadow-md w-full max-w-sm">
+            <div className="border border-gray-700 px-6 py-3 shadow-md w-full max-w-sm">
                 <div className="flex">
                     <button
                         onClick={onClose}
@@ -39,11 +39,11 @@ export default function Webout({onClose, Logout}) {
 
                     >✕</button>
                 </div>
-                <label className="block text-green-400 mb-2 text-center">Actualmente tienes una sesión activa.</label>
+                <label className="block text-gray-400 mb-2 text-center">Actualmente tienes una sesión activa.</label>
                 <div className="flex justify-center ">
                     <button
                         onClick={() => logout()}
-                        className="text-green-400 py-2 px-20 border border-green-400 px-2 cursor-pointer hover:bg-white active:bg-white hover:text-black active:text-black">
+                        className="text-gray-400 py-2 px-20 border border-gray-400 px-2 cursor-pointer hover:bg-white active:bg-white hover:text-black active:text-black">
                         Salir
                     </button>
                 </div>
