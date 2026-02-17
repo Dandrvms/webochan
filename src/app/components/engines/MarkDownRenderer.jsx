@@ -147,12 +147,10 @@ export default function MarkdownRenderer({ text, onReferenceClick, comments }) {
                         left: tooltip.x + 10,
                         zIndex: 1000,
                         background: '#222',
-                        color: '#fff',
+                        color: '#b5b5b5',
                         padding: '8px',
-                        borderRadius: '6px',
                         maxWidth: '300px',
                         pointerEvents: 'none',
-                        boxShadow: '0 2px 8px rgb(30, 255, 255)'
                     }}
                 >
                     <MarkdownRenderer text={"**wbn N. " + tooltip.content.id + "**\n\n" + tooltip.content.content} comments={comments} onReferenceClick={onReferenceClick} />

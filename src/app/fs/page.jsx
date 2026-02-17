@@ -180,7 +180,7 @@ export default function Terminal() {
         setTimeout(() => router.push("/"), 2500)
     }
 
-   
+
 
     function handleKeyDown(e) {
 
@@ -380,60 +380,80 @@ export default function Terminal() {
             />
 
 
+            <Screen
+                mode={mode}
+                sections={screenData}
+                onQuit={handleQuit}
+            />
+
+
+
+            <Editor
+                mode={mode}
+                file={editorFile}
+                access={access}
+                content={editorContent}
+                onChange={setEditorContent}
+                onSave={handleSave}
+                onQuit={handleQuit}
+            />
+
+
+
             <div className="my-10 bg-black">
                 <div
                     ref={containerRef}
                     className="h-[80vh] overflow-y-auto  font-mono p-5 border no-scrollbar text-gray-400 rounded-md my-10"
                     onClick={() => inputRef.current?.focus()}
                 >
-                    {mode === "NORMAL" && !booting && sessionLoaded && (
-                        <>
-                            {lines.map((line, i) => {
-                                if (line.type === "prompt") {
-                                    return (
-                                        <div key={i} className="whitespace-pre-wrap">
-                                            <span className={`${theme.promptUser}`}>
-                                                {line.user}@webochan
-                                            </span>
-                                            <span className={`${theme.promptPath}`}>
-                                                :~{line.cwd}
-                                            </span>
-                                            <span className="text-gray-400">$</span>{" "}
-                                            <span className={`${theme.command}`}>
-                                                {line.command}
-                                            </span>
-                                        </div>
-                                    );
-                                }
 
-
-
-
-                                if (line.type === "error") {
-                                    return (
-                                        <div key={i} className={` whitespace-pre-wrap`}>
-                                            <span className={`${theme.error}`}>{line.text}</span>{"\n"}<span className={`${theme.system}`}>{line.hint}</span>
-                                        </div>
-                                    );
-                                }
-
-                                if (line.type === "system") {
-                                    return (
-                                        <div key={i} className="text-gray-500 whitespace-pre-wrap">
-                                            {line.text}
-                                        </div>
-                                    );
-                                }
-
-
+                    <>
+                        {lines.map((line, i) => {
+                            if (line.type === "prompt") {
                                 return (
-                                    <div key={i} className="whitespace-pre-wrap text-gray-300">
+                                    <div key={i} className="whitespace-pre-wrap">
+                                        <span className={`${theme.promptUser}`}>
+                                            {line.user}@webochan
+                                        </span>
+                                        <span className={`${theme.promptPath}`}>
+                                            :~{line.cwd}
+                                        </span>
+                                        <span className="text-gray-400">$</span>{" "}
+                                        <span className={`${theme.command}`}>
+                                            {line.command}
+                                        </span>
+                                    </div>
+                                );
+                            }
+
+
+
+
+                            if (line.type === "error") {
+                                return (
+                                    <div key={i} className={` whitespace-pre-wrap`}>
+                                        <span className={`${theme.error}`}>{line.text}</span>{"\n"}<span className={`${theme.system}`}>{line.hint}</span>
+                                    </div>
+                                );
+                            }
+
+                            if (line.type === "system") {
+                                return (
+                                    <div key={i} className="text-gray-500 whitespace-pre-wrap">
                                         {line.text}
                                     </div>
                                 );
+                            }
 
-                            })}
 
+                            return (
+                                <div key={i} className="whitespace-pre-wrap text-gray-300">
+                                    {line.text}
+                                </div>
+                            );
+
+                        })}
+                        {!isPending && !booting && sessionLoaded && (
 
                             <form onSubmit={handleSubmit} className="flex">
                                 <span className={`${theme.promptUser}`}>
@@ -460,27 +480,10 @@ export default function Terminal() {
 
                                 />
                             </form>
-                        </>
-                    )}
+                        )}
+                    </>
 
 
-                    {mode === "EDITOR" && !booting && sessionLoaded && !isPending && (
-                        <Editor
-                            file={editorFile}
-                            access={access}
-                            content={editorContent}
-                            onChange={setEditorContent}
-                            onSave={handleSave}
-                            onQuit={handleQuit}
-                        />
-                    )}
-
-
-                    {mode === "SCREEN" && (
-                        <Screen
-                            sections={screenData}
-                        />
-                    )}
                 </div>
             </div>
         </>

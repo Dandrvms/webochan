@@ -28,10 +28,11 @@ export async function ls(cmd, session) {
   if (children.length === 0) {
     return { output: "" };
   }
-
-  const output = children
+  let output = (cmd.flags.p ? "perm\t" : "") + "name\n"
+  output += (cmd.flags.p ? "----\t" : "") + "----\n"
+  output += children
     .map((node) =>
-      node.type === "DIR" ? `${node.name}/` : node.name
+      (cmd.flags.p ? `${node.permissions}` + "\t\t" : "") + (node.type === "DIR" ? `${node.name}/` : node.name)
     )
     .join("\n");
 

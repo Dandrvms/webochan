@@ -277,7 +277,7 @@ export default function CommentList({ initialComments, messageId, boardId }) {
             {comments.map(cmt => (
                 <div id={cmt.id} key={cmt.id} className={`flex w-full border mt-1 justify-between border-3 space-x-3 ${borderColors[boardId]}`}>
                     <div>
-                        <span className={`text-xs font-bold ${cmt.author ? "text-indigo-300" : "text-gray-500"} leading-none px-2`}> {cmt.author ? cmt.author.username : "wbn"}</span>
+                        <span className={`text-xs font-bold ${cmt.author ? "text-green-500" : "text-gray-500"} leading-none px-2`}> {cmt.author ? cmt.author.username : "wbn"}</span>
                         {cmt.isOP && <span className="text-xs font-bold text-gray-300 leading-none pr-2">OP</span>}
                         <span className={`text-xs font-bold leading-none ${textColors[boardId]}`}>N. {cmt.id}</span>
                         <span className="text-xs hover:underline hover:text-blue-300 active:underline active:text-blue-300 text-blue-500 cursor-pointer px-4">

@@ -46,34 +46,34 @@ export default function Homepage() {
           {/* Boards Section */}
           <div className="mb-8 border-gray-700 pt-5">
             <fieldset className="border border-gray-300 p-4 rounded-md">
-              <legend className="text-2xl font-semibold px-2 ml-4 text-white">
-                Tablones
+              <legend className="text-sm font-semibold px-2 ml-4 text-gray-400">
+                Boards
               </legend>
               <div className="md:grid-cols-2 gap-6">
                 {/* /webo/ Board */}
                 <Link href="/board/webo" className="cursor-default">
                   <div className="group py-2 px-6  hover:bg-gray-300 active:bg-white">
                     <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-cyan-400 group-hover:text-black">webo</span> - para webiar</p>
-                    <div className="flex items-center text-gray-500 text-sm">
-                      {/* <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                   {/* <div className="flex items-center text-gray-500 text-sm">
+                       <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
                       <path d="M12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20Z" stroke="currentColor" strokeWidth="2"/>
                       <path d="M12 8V12L15 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                     </svg>
-                    <span>Activo ahora</span> */}
-                    </div>
+                    <span>Activo ahora</span> 
+                    </div>*/}
                   </div>
                 </Link>
 
                 {/* /meta/ Board */}
                 <Link href="/board/meta" className="cursor-default">
                   <div className="group py-2 px-6  hover:bg-gray-300 active:bg-white">
-                    <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-purple-400 group-hover:text-black">meta</span> - sugerencias y bugs</p>
-                    <div className="flex items-center text-gray-500 text-sm">
-                      {/* <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                    <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-purple-400 group-hover:text-black">meta</span> - fback & bugs</p>
+                    {/*<div className="flex items-center text-gray-500 text-sm">
+                       <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
                       <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span>Nuevo</span> */}
-                    </div>
+                    <span>Nuevo</span> 
+                    </div>*/}
                   </div>
                 </Link>
 
@@ -81,24 +81,24 @@ export default function Homepage() {
                 <Link href="board/polls" className="cursor-default">
                   <div className="group py-2 px-6  hover:bg-gray-300 active:bg-white">
                     <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-pink-400 group-hover:text-black">polls</span> - encuestas</p>
-                    <div className="flex items-center text-gray-500 text-sm">
-                      {/* <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                    {/* <div className="flex items-center text-gray-500 text-sm">
+                      <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
                       <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span>Nuevo</span> */}
-                    </div>
+                    <span>Nuevo</span> 
+                    </div>*/}
                   </div>
                 </Link>
 
                 <Link href="/bot" className="cursor-default">
                   <div className="group py-2 px-6  hover:bg-gray-300 active:bg-white">
                     <p className="text-gray-400 group-hover:text-black group-active:text-black"><span className="text-teal-400 group-hover:text-black">bot</span> - telegram</p>
-                    <div className="flex items-center text-gray-500 text-sm">
-                      {/* <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
+                    {/* <div className="flex items-center text-gray-500 text-sm">
+                       <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none">
                       <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span>Nuevo</span> */}
-                    </div>
+                    <span>Nuevo</span> 
+                    </div> */}
                   </div>
                 </Link>
               </div>
@@ -106,7 +106,7 @@ export default function Homepage() {
           </div>
 
 
-          <fieldset className="border  border-gray-300 p-4 rounded-md">
+          <fieldset className="border  border-gray-300 p-4 rounded-md mb-8">
             <legend className="text-sm font-semibold px-2 ml-4 text-gray-400">
               Info
             </legend>
@@ -135,22 +135,31 @@ export default function Homepage() {
                 </p>
                 <a
                   href="https://t.me/webochanlog"
-                  className="cursor-default inline-flex items-center text-lime-500 hover:text-black hover:bg-gray-300 active:bg-white active:text-black transition-colors"
+                  className="cursor-default inline-flex items-center text-lime-500 hover:text-black hover:bg-gray-300 active:bg-white active:text-black"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   <span className="font-extrabold">{">"}</span>Changelog
                 </a>
+                <p>
+                  <a
+                  href="/faq"
+                  className="cursor-default inline-flex items-center text-rose-500 hover:text-black hover:bg-gray-300 active:bg-white active:text-black"
+                 
+                >
+                  <span className="font-extrabold">{">"}</span>Faq
+                </a>
+                </p>
               </div>
             </div>
           </fieldset>
 
 
           {/* Features Section */}
-          <div className="border-t border-gray-800 pt-8 pb-8">
-            {/* <h2 className="text-2xl font-bold mb-8 text-center">Encuentra lo que buscas</h2> */}
+          {/*<div className="border-t border-gray-800 pt-8 pb-8">
+            {/* <h2 className="text-2xl font-bold mb-8 text-center">Encuentra lo que buscas</h2> 
             <div className=" md:grid-cols-3 gap-6">
-              {/* <div className="bg-gray-800/30 rounded-xl p-5 text-center transition-transform hover:scale-[1.02]">
+               <div className="bg-gray-800/30 rounded-xl p-5 text-center transition-transform hover:scale-[1.02]">
                 <div className="bg-blue-900/20 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-6 h-6 text-blue-400" viewBox="0 0 24 24" fill="none">
                     <path d="M19 10C19 11.5913 18.3679 13.1174 17.2426 14.2426C16.1174 15.3679 14.5913 16 13 16C11.4087 16 9.88258 15.3679 8.75736 14.2426C7.63214 13.1174 7 11.5913 7 10C7 8.4087 7.63214 6.88258 8.75736 5.75736C9.88258 4.63214 11.4087 4 13 4C14.5913 4 16.1174 4.63214 17.2426 5.75736C18.3679 6.88258 19 8.4087 19 10Z" stroke="currentColor" strokeWidth="2"/>
@@ -160,7 +169,7 @@ export default function Homepage() {
                 </div>
                 <h3 className="font-bold text-lg mb-2">Anonimato</h3>
                 <p className="text-gray-400 text-sm">Publica sin revelar tu identidad</p>
-              </div> */}
+              </div> 
               {/* <Link href="#">
               <div className="bg-gray-800/30 rounded-xl p-5 text-center transition-transform hover:scale-[1.02]">
                 <div className="bg-purple-900/20 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -174,7 +183,7 @@ export default function Homepage() {
                 <h3 className="font-bold text-lg mb-2">Comunidad</h3>
                 <p className="text-gray-400 text-sm">Conecta con otros miembros</p>
               </div>
-              </Link> */}
+              </Link> 
               <Link href="/faq" className="cursor-default">
                 <div className="group p-5 text-center hover:bg-gray-300 active:bg-white">
                   {/* <div className="bg-cyan-900/20 w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -185,19 +194,19 @@ export default function Homepage() {
                       <path d="M16 17H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                       <path d="M10 9H9H8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                     </svg>
-                  </div> */}
+                  </div> 
                   <h3 className="group-hover:text-black font-bold text-lg mb-2 group-active:text-black">FAQ</h3>
-                  <p className="group-hover:text-black text-gray-400 text-sm group-active:text-black">¿Preguntas?</p>
+                  {/* <p className="group-hover:text-black text-gray-400 text-sm group-active:text-black">¿Preguntas?</p> 
                 </div>
               </Link>
             </div>
-          </div>
+          </div>*/}
 
           {/* Footer */}
 
         </div>
         <footer className="text-center py-8 text-gray-500 text-sm  border-gray-800 mt-12">
-          <p>Webochan © 2025 - {new Date().getFullYear()} • Comunidad Webo</p>
+          <p>Webochan © 2025 - {new Date().getFullYear()} • Webo</p>
         </footer>
       </div>
     </>

@@ -4,6 +4,10 @@ import { resolvePath } from "../pathResolver";
 
 export async function we(cmd, session) {
 
+    if (!cmd.args[0]) {
+        throw new Error("we: missing operand");
+    }
+
     const existing = await resolvePath(session.cwdNodeId, cmd.args[0]);
     let access
     if (cmd.flags.r) {
@@ -23,7 +27,7 @@ export async function we(cmd, session) {
         }
 
         if (access === "READ" && !canRead(existing, session)) {
-           throw new Error("Permision denied")
+            throw new Error("Permision denied")
         }
 
         return {

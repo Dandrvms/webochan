@@ -46,6 +46,7 @@ export async function mkdir(cmd, session) {
         name,
         type: "DIR",
         parentId: currentNodeId,
+        permissions: 755
       },
     });
 

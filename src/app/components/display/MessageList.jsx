@@ -293,7 +293,7 @@ export default function MessageList({ initialMessages }) {
                             <div className="flex space-x-3 w-full mb">
                                 <div className="flex w-full mt-2">
                                     <div>
-                                        <span className={`text-xs font-bold ${message.author? "text-indigo-300" : "text-gray-500"} leading-none px-2`}>{message.author? message.author.username : "wbn"}</span>
+                                        <span className={`text-xs font-bold ${message.author? "text-green-500" : "text-gray-500"} leading-none px-2`}>{message.author? message.author.username : "wbn"}</span>
                                         <span className={`text-xs font-bold leading-none px-2 ${textColors[message.boardId]}`}>{`Th. ${message.id}`}</span>
                                         {message.isPinned && (
                                             <span className="text-xs text-gray-500">pinned</span>
@@ -383,7 +383,7 @@ export default function MessageList({ initialMessages }) {
                             {message.comments > 0 && (
                                 Array.isArray(message.commentsContent) && message.commentsContent.map((c) => (
                                     <div key={c["id"]} className={`h-full break-word wrap-normal mx-10 h-10 border border-2 ${subBorderColors[message.boardId]} mt-1 text-xs p-3 hover:bg-gray-950`}>
-                                        <span className={`font-bold ${c.author? "text-indigo-300" : "text-gray-600"} leading-none`}>{c.author ? c.author.username : "wbn"}</span>
+                                        <span className={`font-bold ${c.author? "text-green-500" : "text-gray-600"} leading-none`}>{c.author ? c.author.username : "wbn"}</span>
                                         <span className={`text-xs font-bold leading-none px-2 ${textColors[message.boardId]}`}>{`N. ${c["id"]}`}</span>
                                         <p className='mb-2 text-gray-400'><MarkdownRenderer text={c["content"]} boardId={message.boardId} /></p>
                                         <span className='text-gray-600 leading-none'>

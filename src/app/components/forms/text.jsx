@@ -101,7 +101,7 @@ export default function Text({
             id="chat"
             ref={textareaRef}
             rows="3"
-            className={`resize-y p-2.5 w-full text-sm placeholder-gray-600 text-white outline-none bg-transparent ${caret[color]} [caret-shape:block] font-mono no-scrollbar`}
+            className={`resize-y p-2.5 w-full text-sm placeholder-gray-600 text-white outline-none bg-transparent ${caret[color]} [caret-shape:block] font-mono no-scrollbar-textarea`}
             placeholder={isCommentsPage ? "Escribe una respuesta..." : "Escribe un nuevo hilo..."}
             disabled={isLoading}
             value={content}

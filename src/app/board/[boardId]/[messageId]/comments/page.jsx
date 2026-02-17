@@ -128,7 +128,7 @@ export default async function Comments({ params, searchParams }) {
                 <div className="flex flex-col flex-grow w-full max-w-4xl md:px-6 items-center border border-2 border-gray-400 mt-20 pb-10 ">
 
                     <div className="w-full h-full mt-5 p-5 mb-4 border-b border-gray-700">
-                        <span className={`${message.author ? "text-indigo-300" : "text-gray-400"} font-bold`}>{message.author? message.author.username : "wbn"}</span>
+                        <span className={`${message.author ? "text-green-500" : "text-gray-400"} font-bold`}>{message.author? message.author.username : "wbn"}</span>
                         <span className="text-cyan-300 font-bold px-2">N. {message.id}</span>
                         <div className="mb-10 flex break-word wrap-normal whitespace-pre-line justify-between text-gray-300 ">
                             <div><MarkdownRenderer text={message.content} /></div>

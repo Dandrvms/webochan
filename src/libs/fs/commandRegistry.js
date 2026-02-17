@@ -9,6 +9,7 @@ import { login } from "./commands/login"
 import { we } from "./commands/we"
 import { chmod } from "./commands/chmod";
 import { fetch } from "./commands/fetch";
+import { rename } from "./commands/rename";
 
 const commands = {
   ls,
@@ -21,7 +22,8 @@ const commands = {
   login,
   we,
   chmod,
-  fetch
+  fetch,
+  rename
 };
 
 export async function executeCommand(
@@ -30,7 +32,7 @@ export async function executeCommand(
 ) {
   const handler = commands[cmd.name];
   if (!handler) {
-    return {error: `error: command not found: ${cmd.name}`};
+    return {error: `command not found: ${cmd.name}`};
   }
 
   return handler(cmd, session);
