@@ -3,15 +3,13 @@
 import { prisma } from "@/libs/prisma"
 import { cookies } from 'next/headers'
 import MessageList from "@/app/components/display/MessageList"
-// import Navbar from "@/app/components/Navbar"
+
 
 async function getMessagesByBoard(boardId) {
     try {
         const messages = await prisma.message.findMany({
             where: {
-                // expiresAt: {
-                //     gt: new Date()
-                // },
+             
                 boardId: boardId,
             },
             include: {
@@ -94,13 +92,13 @@ export default async function Board({ params }) {
     return (
 
         <>
-            {/* <Navbar/> */}
-            <div className=" flex-col flex items-center w-full h-full pt-10">
+           
+            <div className=" flex-col flex items-center w-full h-full pt-5">
                 <div className="flex flex-col flex-grow w-full max-w-xl  border-gray-800 rounded-full items-center p-5 ">
 
                     {boards.includes(boardId) ? (
                         <>
-                            <p className={`text-4xl font-bold text-${colors[boardId]} leading-none`}>{`/${boardId}/`}</p>
+                            <p className={`text-6xl font-bold text-${colors[boardId]} leading-none`}>{`/${boardId}/`}</p>
                             <p className="font-bold text-gray-500 leading-none mt-2 text-center">{boardId === "webo" ? "Cosas de webo" : boardId === "meta" ? "Sugerencias y reportes" : boardId === "test" ? "Tablón de pruebas del dev" : null}</p>
                         </>
                     ) : (

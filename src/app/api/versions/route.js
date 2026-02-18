@@ -4,13 +4,7 @@ import { prisma } from '@/libs/prisma'
 
 export async function GET(request) {
 
-    // const cookieStore = await cookies()
-    // const csrfCookie = cookieStore.get('csrfToken')?.value
-    // const csrfHeader = request.headers.get('X-CSRF-Token')
 
-    // if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
-    //     return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
-    // }
 
     const id = request.headers.get('id')
     const messages = await prisma.versions.findMany({

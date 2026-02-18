@@ -3,12 +3,12 @@ import { useState } from "react"
 export const ExpandableMarkdown = ({ text, boardId, limit = 450, onReferenceClick, comments }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     
-    // Si el texto es corto
+ 
     if (!text || text.length <= limit) {
         return <MarkdownRenderer text={text} boardId={boardId} onReferenceClick={onReferenceClick} comments={comments} />;
     }
 
-    // Si es largo
+ 
     const textToRender = isExpanded ? text : text.slice(0, limit) + "...";
 
     return (

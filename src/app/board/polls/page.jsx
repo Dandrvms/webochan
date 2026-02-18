@@ -53,7 +53,6 @@ export default async function PollsPage() {
     const getRelevantDate = (poll) => poll.lastReply ? new Date(poll.lastReply) : new Date(poll.createdAt)
 
     const safePolls = polls.map(({ secretKey, _count, options, ...poll }) => {
-        // Calcula el total de votos sumando los votos de todas las opciones
         const totalVotes = options?.reduce((sum, option) => sum + option.votes.length, 0) || 0;
 
         return {
@@ -62,7 +61,7 @@ export default async function PollsPage() {
                 ...option,
                 voteCount: option.votes.length
             })),
-            totalVotes, // <-- Aquí lo agregas
+            totalVotes,
             canEdit: secretKey === userSecret,
             comments: _count.comments,
             commentsContent: poll.comments.slice().reverse(),
@@ -80,13 +79,12 @@ export default async function PollsPage() {
     return (
 
         <>
-            {/* <Navbar/> */}
 
-            <div className=" flex-col flex items-center w-full h-full pt-10">
+            <div className=" flex-col flex items-center w-full h-full pt-5">
                 <div className="flex flex-col flex-grow w-full max-w-xl  border-gray-800 rounded-full items-center p-5 ">
 
 
-                    <p className="text-4xl font-bold text-pink-500 leading-none">/polls/</p>
+                    <p className="text-6xl font-bold text-pink-500 leading-none">/polls/</p>
                     <p className="font-bold text-gray-500 leading-none mt-2">Solo encuestas</p>
 
                 </div>

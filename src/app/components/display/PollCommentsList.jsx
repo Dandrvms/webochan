@@ -160,7 +160,6 @@ export default function PollCommentsList({ initialComments, pollId }) {
     }, [])
 
     const deleteComment = useCallback(async (id) => {
-        // if (!confirm("¿Estás seguro de eliminar este comentario?")) return;
 
         const csrfToken = document.cookie.split('; ').find(r => r.startsWith('csrfToken='))?.split('=')[1]
 
@@ -243,7 +242,7 @@ export default function PollCommentsList({ initialComments, pollId }) {
                 type='comment'
             />
 
-            {/* Toast de error */}
+
             {toast && (
                 <div className="fixed mt-20 top-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50">
                     {toast}
@@ -290,7 +289,7 @@ export default function PollCommentsList({ initialComments, pollId }) {
                     <div className="flex items-center space-x-2">
                         {cmt.canEdit && (
                             <>
-                                {/* Botón Editar */}
+                          
                                 <button onClick={() => setEditingComment(cmt)}>
                                     <svg className="text-gray-500 hover:text-cyan-400 cursor-pointer" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -298,7 +297,6 @@ export default function PollCommentsList({ initialComments, pollId }) {
                                     </svg>
                                 </button>
 
-                                {/* Botón Eliminar */}
                                 <button onClick={() => handleDeleteClick(cmt.id)}>
                                     <svg className="text-gray-500 hover:text-red-500 cursor-pointer" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                         <polyline points="3 6 5 6 21 6"></polyline>
@@ -335,14 +333,7 @@ export default function PollCommentsList({ initialComments, pollId }) {
                 </div>
             ))}
 
-            {/* <div className="max-w-3xl mx-auto border-t border-pink-300 my-5">
-                <div className="flex justify-center items-center">
-                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/">home</a>
-                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/webo">webo</a>
-                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/meta">meta</a>
-                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/polls">polls</a>
-                </div>
-            </div> */}
+
         </>
     )
 }

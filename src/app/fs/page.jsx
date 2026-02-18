@@ -47,7 +47,6 @@ export default function Terminal() {
     const containerRef = useRef(null);
     const inputRef = useRef(null);
 
-    // auto-scroll al fondo cuando hay nuevas líneas
     useEffect(() => {
         if (containerRef.current) {
             containerRef.current.scrollTop =
@@ -135,7 +134,6 @@ export default function Terminal() {
                 }
 
                 setLines(prev => {
-                    // quitar el pending
 
                     const withoutPending = prev.slice(0, -1);
 

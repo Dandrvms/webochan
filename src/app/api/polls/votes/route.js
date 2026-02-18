@@ -28,7 +28,7 @@ export async function POST(request) {
 
         const { pollId, optionId } = await request.json();
 
-        // Check if the vote already exists
+        
         const existingVote = await prisma.poll_Votes.findFirst({
             where: {
                 pollId: Number(pollId),
@@ -40,7 +40,7 @@ export async function POST(request) {
             return NextResponse.json({ error: 'Ya has votado en esta encuesta' }, { status: 400 });
         }
 
-        // Check if the poll is closed
+      
         const pollClosed = await prisma.poll.findFirst({
             where: {
                 id: Number(pollId),
@@ -57,7 +57,7 @@ export async function POST(request) {
             data: {
                 pollId: Number(pollId),
                 optionId: Number(optionId),
-                userId: user // Use the secret key as userId
+                userId: user 
             },
         });
 
@@ -101,49 +101,6 @@ export async function POST(request) {
         return NextResponse.json({ error: "Error al registrar voto" }, { status: 500 })
     }
 }
-
-
-// export async function DELETE(request) {
-
-
-//     const cookieStore = await cookies()
-//     const csrfCookie = cookieStore.get('csrfToken')?.value
-//     const csrfHeader = request.headers.get('X-CSRF-Token')
-
-//     if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
-//         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
-//     }
-
-//     const userSecret = cookieStore.get('secretKey');
-
-//     if (!userSecret) {
-//         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-//     }
-
-//     const { pollId, optionId } = await request.json();
-
-//     // Check if the vote exists
-//     const existingVote = await prisma.poll_Votes.findFirst({
-//         where: {
-//             pollId: Number(pollId),
-//             optionId: Number(optionId),
-//             userId: cookieStore.get('secretKey')?.value,
-//         },
-//     });
-
-//     if (!existingVote) {
-//         return NextResponse.json({ error: 'Voto no encontrado' }, { status: 404 });
-//     }
-
-//     // Delete the vote
-//     await prisma.poll_Votes.delete({
-//         where: {
-//             id: existingVote.id,
-//         },
-//     });
-
-//     return NextResponse.json({ message: 'Voto eliminado correctamente' });
-// }
 
 
 function generateSession() {

@@ -58,9 +58,7 @@ export async function GET(request) {
                 closed: new Date(poll.expiresAt) < new Date(Date.now())
             }
         })
-        // const pinnedPolls = safePolls.filter(poll => poll.isPinned)
-        // const unpinnedPolls = safePolls.filter(poll => !poll.isPinned)
-        // const sorted = [...pinnedPolls, ...unpinnedPolls]
+        
 
 
 

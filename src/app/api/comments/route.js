@@ -50,7 +50,7 @@ export async function GET(request) {
             ...cmt,
             canEdit: secretKey === userSecret,
             isComment: true,
-            isOP: secretKey === opSecretKey, // Añadir isOP
+            isOP: secretKey === opSecretKey, 
             isEdited: false
         }))
 
@@ -180,33 +180,4 @@ export async function POST(request) {
         return NextResponse.json({ error: "Internal server error" }, { status: 500 })
     }
 
-    // export async function DELETE(request, { params }) {
-
-    //     const cookieStore = await cookies()
-    //     const csrfCookie = cookieStore.get('csrfToken')?.value
-    //     const csrfHeader = request.headers.get('X-CSRF-Token')
-
-    //     if(!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader){
-    //         return NextResponse.json({ error: 'Invalid CSRF token' }, { status: 403 })
-    //     }
-
-    //     const { messageId } = await request.json();
-
-    //     const userSecret = cookieStore.get('secretKey')
-
-    //     const message = await prisma.message.findUnique({ where: { id: Number(messageId) } })
-    //     if (!message || message.secretKey !== userSecret) {
-    //         return NextResponse.json({ error: 'No autorizado' }, { status: 403 })
-    //     }
-
-    //     try {
-    //         const deletedComment = await prisma.comment.deleteMany({
-    //             where: {
-    //                 messageId: Number(messageId)
-    //             }
-    //         });
-    //         return NextResponse.json(deletedComment);
-    //     } catch (error) {
-    //         return NextResponse.json(error);
-    //     }
 }

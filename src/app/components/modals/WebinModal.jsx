@@ -123,15 +123,12 @@ export default function WebinModal({ isOpen, onClose, Logged, Logout }) {
                                 <label className="text-gray-400 font-extrabold mt-2 mr-1 text-gray-400" >{"~/user$"}</label>
                                 <input
                                     type="text"
-                                    // id="question"
-                                    // name="question"
+                            
                                     className="w-full py-2 outline-none text-gray-400 [caret-shape:block] caret-gray-400"
                                     value={username}
                                     required
                                     autoComplete="off"
                                     autoFocus
-                                    // ref={questionRef}
-                                    // onKeyDown={e => handleKeyDown(e, -1)}
                                     maxLength={50}
                                     onChange={(e) => setUsername(e.target.value)}
                                     disabled={isSubmitting}
@@ -142,14 +139,10 @@ export default function WebinModal({ isOpen, onClose, Logged, Logout }) {
                                 <label className="text-gray-400 font-extrabold mt-2 mr-1" >{"~/user/pass$"}</label>
                                 <input
                                     type="password"
-                                    // id="question"
-                                    // name="question"
                                     className="w-full py-2 outline-none text-gray-400 [caret-shape:block] caret-gray-400"
                                     value={password}
                                     required
                                     autoComplete="off"
-                                    // ref={questionRef}
-                                    // onKeyDown={e => handleKeyDown(e, -1)}
                                     maxLength={50}
                                     onChange={(e) => setPassword(e.target.value)}
                                     disabled={isSubmitting}

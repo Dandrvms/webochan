@@ -90,9 +90,9 @@ export default function Text({
   return (
     <div className="flex flex-col items-center py-4 sm:px-0 px-4 w-full max-w-xl mx-auto">
       <form onSubmit={onSub} className="w-full">
-        <div className={`px-3 py-2 border border-3 ${colors[color] || colors.webo} ${isLoading ? 'opacity-70' : ''}`}>
+        <div className={`px-3 py-2 border ${colors[color] || colors.webo} ${isLoading ? 'opacity-70' : ''}`}>
 
-          {/* Label de la terminal */}
+
           <div className="text-[10px] text-gray-500 mb-1 font-mono uppercase ml-2">
             [ INPUT_BUFFER_{color?.toUpperCase() || 'SYS'} ]
           </div>
@@ -102,7 +102,7 @@ export default function Text({
             ref={textareaRef}
             rows="3"
             className={`resize-y p-2.5 w-full text-sm placeholder-gray-600 text-white outline-none bg-transparent ${caret[color]} [caret-shape:block] font-mono no-scrollbar-textarea`}
-            placeholder={isCommentsPage ? "Escribe una respuesta..." : "Escribe un nuevo hilo..."}
+            placeholder={"..."}
             disabled={isLoading}
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -135,10 +135,9 @@ export default function Text({
 
 
       {content.trim().length > 0 && (
-        <div className={`mt-4 w-full p-4 border border-dashed ${colors[color] || colors.webo} bg-black/50 opacity-80 animate-pulse-subtle`}>
+        <div className={`mt-4 w-full p-4 border border-dashed ${colors[color] || colors.webo}`}>
           <div className="text-[10px] text-gray-500 mb-3 font-mono uppercase flex justify-between">
             <span>[ LIVE_RENDER_OUTPUT ]</span>
-            {/* <span className="animate-pulse">●</span> */}
           </div>
           <div className="text-sm break-words overflow-hidden text-gray-300">
             <MarkdownRenderer

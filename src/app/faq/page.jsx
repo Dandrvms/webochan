@@ -28,7 +28,6 @@ export default function FAQ() {
         <div className="p-4">
           <p className="text-gray-300">Webochan es completamente anónimo. No se requiere ninguna información.</p>
           <p className="text-gray-300 mt-5">Para que puedas editar y borrar tus propios posts, se te asignan cookies que se borran al cabo de 30 días.</p>
-          {/* <p className="text-gray-300 mt-5">Para saber más de esto puedes leer nuestros <a href="#" className="font-bold text-rose-400">Términos y Condiciones</a>.</p> */}
         </div>
       </fieldset>
 
@@ -39,7 +38,6 @@ export default function FAQ() {
         <div className="p-4" id="board">
           <h className="text-teal-500 font-bold text-xl">Posts</h>
           <ul className="list-disc list-inside">
-            {/* <li className="text-gray-300 mt-2">Los posts que haces en Webochan, a excepción de las encuestas, se ocultan al cabo de 1 semana para dar paso a nuevos posts.</li> */}
             <li className="text-gray-300 mt-2">Los posts que son comentados suben hasta el tope del tablón. Se ordenan por fecha o por comentario reciente.</li>
             <li className="text-gray-300 mt-2 mb-3">Marca sage antes de comentar si no quieres que el post suba.</li>
 
@@ -74,10 +72,7 @@ export default function FAQ() {
 
         <div className="p-4" id="board">
           <p className="text-gray-300 my-5 mx-5">Postea sugerencias y errores en el tablón <a href="/board/meta" className="font-bold text-purple-400 hover:bg-white hover:text-black cursor-default">/meta</a> o en el privado del <a href="https://t.me/webochanlog" className="font-bold text-cyan-400 hover:bg-white hover:text-black cursor-default">Changelog</a>.</p>
-          {/* <p className="text-gray-300 text-md">¿Quieres contribuir en el desarrollo de Webochan?</p> */}
-          {/* <p className="text-gray-300 my-5 ml-10">Por ahora no aceptamos contribuciones, pero podrías acercarte al <a href="https://t.me/+Aazr9iuLR6s5ZGJh" className="font-bold text-cyan-400">chat</a>. Existe la posibilidad de que eso cambie entonces.</p> */}
           <p className="text-gray-300 my-5 mx-5">El código de webochan lo puedes encontrar en <a href="https://github.com/dandrvms/webochan" className="font-bold text-cyan-400 hover:bg-white hover:text-black cursor-default">github</a>.</p>
-          {/* <p className="text-gray-300 my-5 ml-10">Por el momento el código de webochan no está abierto, pero en breve estaremos publicando el enlace público al repositorio para que esté al alcance de todos. </p> */}
 
         </div>
       </fieldset>

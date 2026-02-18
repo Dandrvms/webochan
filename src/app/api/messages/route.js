@@ -22,9 +22,7 @@ export async function GET(request) {
 
         const messages = await prisma.message.findMany({
             where: {
-                // expiresAt: {
-                //     gt: new Date()
-                // },
+            
                 boardId: boardId
             },
             include: {

@@ -169,7 +169,6 @@ export default function MessageList({ initialMessages }) {
     }, [])
 
     const deleteMessage = useCallback(async (id) => {
-        // if (!confirm("¿Estás seguro de eliminar este mensaje?")) return;
 
         const csrfToken = document.cookie.split('; ').find(r => r.startsWith('csrfToken='))?.split('=')[1];
 
@@ -278,7 +277,7 @@ export default function MessageList({ initialMessages }) {
                 type='message'
             />
 
-            {/* Toast de error */}
+
             {toast && (
                 <div className="fixed mt-20 top-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50">
                     {toast}
@@ -303,7 +302,7 @@ export default function MessageList({ initialMessages }) {
                                                 <ExpandableMarkdown
                                                     text={message.content}
                                                     boardId={message.boardId}
-                                                    limit={500} // Ajusta el límite a tu gusto
+                                                    limit={500}
                                                     onReferenceClick={handleReferenceSent}
                                                     comments={message.commentsContent}
                                                 />
@@ -331,7 +330,7 @@ export default function MessageList({ initialMessages }) {
                                 <div className="flex items-center space-x-2 mx-auto">
                                     {message.canEdit && (
                                         <>
-                                            {/* Botón Editar */}
+                      
                                             <button onClick={() => setEditingMessage(message)}>
                                                 <svg className="text-gray-500 hover:text-cyan-400 cursor-pointer" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -339,7 +338,7 @@ export default function MessageList({ initialMessages }) {
                                                 </svg>
                                             </button>
 
-                                            {/* Botón Eliminar */}
+                                      
                                             <button onClick={() => handleDeleteClick(message.id)}>
                                                 <svg className="text-gray-500 hover:text-red-500 cursor-pointer" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <polyline points="3 6 5 6 21 6"></polyline>
@@ -403,14 +402,7 @@ export default function MessageList({ initialMessages }) {
                 </div>
             </div>
 
-            {/* <div className={`max-w-3xl mx-auto border-t my-5 ${borderColors[messages[0]?.boardId || 'webo']}`}>
-                <div className="flex justify-center items-center">
-                    <a className={`border px-2 ${textColors[messages[0]?.boardId || 'webo']} ${borderColors[messages[0]?.boardId || 'webo']}`} href="/">home</a>
-                    <a className={`border px-2 ${textColors[messages[0]?.boardId || 'webo']} ${borderColors[messages[0]?.boardId || 'webo']}`} href="/board/webo">webo</a>
-                    <a className={`border px-2 ${textColors[messages[0]?.boardId || 'webo']} ${borderColors[messages[0]?.boardId || 'webo']}`} href="/board/meta">meta</a>
-                    <a className={`border px-2 ${textColors[messages[0]?.boardId || 'webo']} ${borderColors[messages[0]?.boardId || 'webo']}`} href="/board/polls">polls</a>
-                </div>
-            </div> */}
+  
         </>
     )
 }

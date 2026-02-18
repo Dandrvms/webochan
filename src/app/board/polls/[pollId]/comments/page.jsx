@@ -110,13 +110,12 @@ export default async function PollsComments({ params, searchParams }) {
                                 <ul className="list-none px-4">
                                     {poll.options.map(option => {
                                         const voteCount = option.votes.length;
-                                        // Calcula el porcentaje de votos para esta opción
                                         const percent = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
                                         return (
                                             <li key={option.id} className="cursor-pointer text-gray-300 mb-4 active:bg-gray-700 hover:bg-gray-700 rounded-lg px-3"
                                             >
                                                 {option.option} <span className="text-xs text-gray-500">({voteCount} votos)</span>
-                                                {/* Barra de progreso */}
+                                     
 
                                                 <div className=" w-full h-2 mt-1">
 

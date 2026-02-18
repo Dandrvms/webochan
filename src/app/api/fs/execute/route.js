@@ -16,13 +16,7 @@ export async function POST(req) {
     const parsed = parseCommand(input);
     console.log(parsed)
     const result = await executeCommand(parsed, session);
-    // if (result.output) {
-    //   return NextResponse.json({
-    //     ok: true,
-    //     output: result.output,
-    //     cwd: result.cwd,
-    //   });
-    // } else {
+
     console.log("RESULT:",result)
 
     if (result.error) {
@@ -35,7 +29,7 @@ export async function POST(req) {
       ok: true,
       ...result,
     })
-    // }
+    
   } catch (err) {
     return NextResponse.json({
       ok: false,

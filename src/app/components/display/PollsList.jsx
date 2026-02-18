@@ -190,7 +190,7 @@ export default function PollsList({ initialPolls }) {
 
     return (
         <>
-            {/* Toast de error */}
+   
             {toast && (
                 <div className="fixed mt-20 top-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg z-50">
                     {toast}
@@ -220,7 +220,7 @@ export default function PollsList({ initialPolls }) {
                                             <div className="p-2 mt-5 w-full max-w-3xl">
                                                 <ul className="list-disc pl-5 list-none">
                                                     {poll.options.map(option => {
-                                                        // Calcula el porcentaje de votos para esta opción
+                                                        
                                                         const percent = poll.totalVotes > 0 ? (option.voteCount / poll.totalVotes) * 100 : 0
                                                         return (
                                                             <li
@@ -229,7 +229,7 @@ export default function PollsList({ initialPolls }) {
                                                                 onClick={() => handleVote(poll.id, option.id)}
                                                             >
                                                                 {option.option} <span className="text-xs text-gray-500">({option.voteCount} votos)</span>
-                                                                {/* Barra de progreso */}
+                                                       
                                                                 <div className="w-full h-2 mt-1">
                                                                     <div
                                                                         className="h-2 bg-pink-400 transition-all duration-300"
@@ -265,7 +265,7 @@ export default function PollsList({ initialPolls }) {
                                         }}
                                         className="mt-2 text-gray-500 hover:text-white active:text-gray-300 cursor-pointer"
                                     >
-                                        {/* SVG de cadena */}
+                     
                                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                                             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
@@ -310,14 +310,7 @@ export default function PollsList({ initialPolls }) {
                 </div>
             </div>
 
-            {/* <div className="max-w-3xl mx-auto border-t border-pink-300 my-5">
-                <div className="flex justify-center items-center">
-                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/">home</a>
-                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/webo">webo</a>
-                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/meta">meta</a>
-                    <a className="font-bold text-fuchsia-600 border-fuchsia-900 border px-2" href="/board/polls">polls</a>
-                </div>
-            </div> */}
+  
         </>
     )
 }
